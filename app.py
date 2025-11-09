@@ -12,7 +12,7 @@ import json
 
 # Configure page - MUST be first Streamlit command
 st.set_page_config(
-    page_title="Snowflake AISQL Playground",
+    page_title="Snowflake Cortex AISQL Playground",
     page_icon="❄️",
     layout="wide",
     initial_sidebar_state="expanded"
@@ -192,7 +192,7 @@ def escape_sql_string(text):
 
 def show_header():
     """Display the app header"""
-    st.markdown('<div class="main-header"><h1>❄️ Snowflake AISQL Playground</h1><p>Powered by Cortex AI - Explore Every AISQL Function</p></div>', unsafe_allow_html=True)
+    st.markdown('<div class="main-header"><h1>❄️ Snowflake Cortex AISQL Playground ❄️</h1><p>Powered by Cortex AI - Explore Every AISQL Function</p></div>', unsafe_allow_html=True)
 
 def execute_query(query):
     """Execute a Snowflake query and return results"""
@@ -2989,7 +2989,7 @@ def main():
     st.markdown("""
     <div style='text-align: center; padding: 30px; background: linear-gradient(135deg, #F8FAFC 0%, #E8EEF2 100%); border-radius: 12px; margin-top: 40px;'>
         <p style='font-size: 18px; font-weight: 600; color: #1E293B; margin-bottom: 8px;'>
-            ❄️ Snowflake AISQL Playground
+            ❄️ Snowflake Cortex AISQL Playground ❄️
         </p>
         <p style='color: #64748b; font-size: 14px; margin-bottom: 0;'>
             Built with Snowflake Cortex AI | Powered by Streamlit in Snowflake

@@ -1,5 +1,5 @@
-# Snowflake-AISQL-Playground
-Codebase for the Snowflake AISQL Playground Streamlit app
+# Snowflake Cortex AISQL Playground
+Codebase for the Snowflake Cortex AISQL Playground Streamlit app
 
 ---
 
