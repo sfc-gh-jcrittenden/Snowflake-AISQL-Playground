@@ -7,10 +7,7 @@
 
 import streamlit as st
 from snowflake.snowpark.context import get_active_session
-from snowflake.snowpark.functions import col
 import json
-import io
-import base64
 import pypdfium2 as pdfium
 
 # Configure page - MUST be first Streamlit command
@@ -236,16 +233,6 @@ def show_multimodal_support(text=True, images=False, documents=False, audio=Fals
                            border: 1px solid #B8DCEA;'>
         🎯 {caps_str}
     </span>"""
-
-def previous_pdf_page():
-    """Navigate to previous PDF page"""
-    if st.session_state['pdf_page'] > 0:
-        st.session_state['pdf_page'] -= 1
-
-def next_pdf_page():
-    """Navigate to next PDF page"""
-    if st.session_state['pdf_page'] < len(st.session_state['pdf_doc']) - 1:
-        st.session_state['pdf_page'] += 1
 
 def display_pdf_page():
     """Display the current PDF page as an image"""
