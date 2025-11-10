@@ -33,6 +33,10 @@ CREATE OR REPLACE STAGE AUDIO_STAGE
 CREATE OR REPLACE STAGE DOCUMENT_STAGE
     ENCRYPTION = (TYPE = 'SNOWFLAKE_SSE');
 
+-- Stage for supplier invoice documents (AI_EXTRACT demos)
+CREATE OR REPLACE STAGE SUPPLIER_DOCUMENTS_STAGE
+    ENCRYPTION = (TYPE = 'SNOWFLAKE_SSE');
+
 -- Stage for image files (image analysis demos)
 CREATE OR REPLACE STAGE IMAGE_STAGE
     ENCRYPTION = (TYPE = 'SNOWFLAKE_SSE');
@@ -123,6 +127,29 @@ CREATE OR REPLACE TABLE PARSE_DOC_CHUNKED_TEXT (
     chunk_length INT,
     created_date TIMESTAMP_LTZ DEFAULT CURRENT_TIMESTAMP(),
     PRIMARY KEY (chunk_id)
+);
+
+-- Supplier Invoice Details Table (for AI_EXTRACT demos)
+CREATE OR REPLACE TABLE SUPPLIER_INVOICE_DETAILS (
+    invoice_detail_id INT AUTOINCREMENT,
+    file_name VARCHAR(500),
+    file_url VARCHAR(2000),
+    invoice_number VARCHAR(50),
+    invoice_date DATE,
+    supplier_name VARCHAR(200),
+    supplier_address VARCHAR(500),
+    supplier_phone VARCHAR(50),
+    customer_name VARCHAR(200),
+    customer_address VARCHAR(500),
+    customer_phone VARCHAR(50),
+    subtotal DECIMAL(10,2),
+    tax_amount DECIMAL(10,2),
+    total_amount DECIMAL(10,2),
+    payment_terms VARCHAR(100),
+    item_count INT,
+    extraction_date DATE,
+    raw_json VARIANT,
+    PRIMARY KEY (invoice_detail_id)
 );
 
 -- ============================================================================
@@ -300,6 +327,7 @@ GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA AISQL_DEMO.DEMO TO 
 -- Grant privileges on stages
 GRANT READ, WRITE ON STAGE AISQL_DEMO.DEMO.AUDIO_STAGE TO ROLE SYSADMIN;
 GRANT READ, WRITE ON STAGE AISQL_DEMO.DEMO.DOCUMENT_STAGE TO ROLE SYSADMIN;
+GRANT READ, WRITE ON STAGE AISQL_DEMO.DEMO.SUPPLIER_DOCUMENTS_STAGE TO ROLE SYSADMIN;
 GRANT READ, WRITE ON STAGE AISQL_DEMO.DEMO.IMAGE_STAGE TO ROLE SYSADMIN;
 
 -- Grant privileges on views
@@ -326,6 +354,9 @@ SELECT COUNT(*) as ticket_pii_count FROM SUPPORT_TICKETS_PII;
 SELECT COUNT(*) as raw_docs_count FROM PARSE_DOC_RAW_TEXT;
 SELECT COUNT(*) as chunked_docs_count FROM PARSE_DOC_CHUNKED_TEXT;
 
+-- Verify supplier invoice details table
+SELECT COUNT(*) as invoice_count FROM SUPPLIER_INVOICE_DETAILS;
+
 -- List all stages
 SHOW STAGES;
 
@@ -339,16 +370,24 @@ SHOW STAGES;
 --    Upload sample audio files to AUDIO_STAGE using:
 --    PUT file:///path/to/audio.wav @AUDIO_STAGE AUTO_COMPRESS=FALSE;
 --
--- 2. DOCUMENT FILES (for AI_PARSE_DOCUMENT and AI_EXTRACT examples):
+-- 2. DOCUMENT FILES (for AI_PARSE_DOCUMENT examples):
 --    Upload sample PDF/DOC files to DOCUMENT_STAGE using:
 --    PUT file:///path/to/document.pdf @DOCUMENT_STAGE AUTO_COMPRESS=FALSE;
 --
--- 3. IMAGE FILES (for AI_CLASSIFY and AI_COMPLETE image examples):
+-- 3. SUPPLIER INVOICE FILES (for AI_EXTRACT examples):
+--    Upload supplier invoice PDFs to SUPPLIER_DOCUMENTS_STAGE using:
+--    PUT file://supplier_invoice_*.pdf @SUPPLIER_DOCUMENTS_STAGE AUTO_COMPRESS=FALSE;
+--
+-- 4. IMAGE FILES (for AI_CLASSIFY and AI_COMPLETE image examples):
 --    Upload sample images to IMAGE_STAGE using:
 --    PUT file:///path/to/image.jpg @IMAGE_STAGE AUTO_COMPRESS=FALSE;
 --
 -- Note: You can also generate synthetic audio/documents or use public domain
 -- content for demonstration purposes.
+--
+-- To generate the 10 supplier invoice PDFs:
+--    python generate_supplier_invoices.py
+-- Then upload them to SUPPLIER_DOCUMENTS_STAGE.
 
 -- ============================================================================
 -- END OF SETUP SCRIPT

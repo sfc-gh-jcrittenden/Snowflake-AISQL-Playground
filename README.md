@@ -43,6 +43,7 @@ This demo application provides interactive examples of 12 core AISQL functions w
 | `AUDIO_STAGE` | Audio files for AI_TRANSCRIBE demos | Snowflake SSE |
 | `DOCUMENT_STAGE` | PDF files for AI_PARSE_DOCUMENT demos | Snowflake SSE |
 | `IMAGE_STAGE` | Image files for AI_CLASSIFY/FILTER demos | Snowflake SSE |
+| `SUPPLIER_DOCUMENTS_STAGE` | Supplier invoice PDFs for AI_EXTRACT demos | Snowflake SSE |
 
 ### Data Tables
 | Table Name | Rows | Purpose |
@@ -52,6 +53,7 @@ This demo application provides interactive examples of 12 core AISQL functions w
 | `CUSTOMER_REVIEWS` | 40 | Customer reviews in English, Spanish, French |
 | `SUPPORT_TICKETS` | 20 | Support tickets (NO PII) for general demos |
 | `SUPPORT_TICKETS_PII` | 20 | Support tickets with embedded PII for AI_REDACT |
+| `SUPPLIER_INVOICE_DETAILS` | 0 | Populated via app from AI_EXTRACT invoice processing |
 | `PARSE_DOC_RAW_TEXT` | 0 | Populated via app for document parsing |
 | `PARSE_DOC_CHUNKED_TEXT` | 0 | Populated via app for Cortex Search |
 
@@ -61,7 +63,7 @@ This demo application provides interactive examples of 12 core AISQL functions w
 | `REVIEW_ANALYTICS` | Aggregated review statistics by food truck |
 | `POPULAR_ITEMS` | Menu item popularity rankings |
 
-**Total Objects:** 2 warehouses, 1 database, 1 schema, 3 stages, 7 tables, 2 views = **16 database objects**
+**Total Objects:** 2 warehouses, 1 database, 1 schema, 4 stages, 8 tables, 2 views = **18 database objects**
 
 ---
 
@@ -111,7 +113,7 @@ This demo application provides interactive examples of 12 core AISQL functions w
 ```sql
 USE DATABASE AISQL_DEMO;
 USE SCHEMA DEMO;
-SHOW TABLES;  -- Should show 7 tables
+SHOW TABLES;  -- Should show 8 tables
 ```
 
 Expected Tables:
@@ -120,6 +122,7 @@ Expected Tables:
 - CUSTOMER_REVIEWS (40 rows)
 - SUPPORT_TICKETS (20 rows - NO PII, for general use)
 - SUPPORT_TICKETS_PII (20 rows - with PII for AI_REDACT demos only)
+- SUPPLIER_INVOICE_DETAILS (0 rows - populated via app)
 - PARSE_DOC_RAW_TEXT (0 rows - populated via app)
 - PARSE_DOC_CHUNKED_TEXT (0 rows - populated via app)
 
@@ -149,6 +152,7 @@ Upload the provided sample files to their corresponding stages for the AI demos 
 | `audio/` | 10 .wav files | `AUDIO_STAGE` | AI_TRANSCRIBE examples |
 | `documents/` | 2 .pdf files | `DOCUMENT_STAGE` | AI_PARSE_DOCUMENT examples |
 | `images/` | 10 .jpg files | `IMAGE_STAGE` | AI_CLASSIFY, AI_FILTER, AI_SIMILARITY examples |
+| `supplier_invoices/` | 10 .pdf files | `SUPPLIER_DOCUMENTS_STAGE` | AI_EXTRACT examples |
 
 #### Upload via Snowsight UI (Recommended)
 
@@ -166,13 +170,15 @@ Upload the provided sample files to their corresponding stages for the AI demos 
    - Upload `audio/*.wav` files to `AUDIO_STAGE`
    - Upload `documents/*.pdf` files to `DOCUMENT_STAGE`
    - Upload `images/*.jpg` files to `IMAGE_STAGE`
+   - Upload `supplier_invoices/*.pdf` files to `SUPPLIER_DOCUMENTS_STAGE`
 6. Enable Directory table to view the file contents in UI
 
 **Verify uploads via SQL (optional):**
 ```sql
-LIST @AISQL_DEMO.DEMO.AUDIO_STAGE;      -- Should show 10 .wav files
-LIST @AISQL_DEMO.DEMO.DOCUMENT_STAGE;   -- Should show 2 .pdf files
-LIST @AISQL_DEMO.DEMO.IMAGE_STAGE;      -- Should show 10 .jpg files
+LIST @AISQL_DEMO.DEMO.AUDIO_STAGE;               -- Should show 10 .wav files
+LIST @AISQL_DEMO.DEMO.DOCUMENT_STAGE;            -- Should show 2 .pdf files
+LIST @AISQL_DEMO.DEMO.IMAGE_STAGE;               -- Should show 10 .jpg files
+LIST @AISQL_DEMO.DEMO.SUPPLIER_DOCUMENTS_STAGE;  -- Should show 10 .pdf files
 ```
 
 📖 **Full Upload Documentation:** [Staging Files using Snowsight](https://docs.snowflake.com/en/user-guide/data-load-local-file-system-stage-ui)
@@ -300,12 +306,12 @@ show_example_card("New Example Title", "Description", 4)
 
 Your deployment is successful when:
 
-- ✅ Database has 16 objects created (2 warehouses, 3 stages, 7 tables, 2 views)
+- ✅ Database has 18 objects created (2 warehouses, 4 stages, 8 tables, 2 views)
 - ✅ Tables contain 100 rows of sample data (80 in core tables + 20 PII tickets)
 - ✅ Streamlit app loads without errors
 - ✅ All 12 function pages accessible via sidebar
 - ✅ SQL queries execute and return results
-- ✅ Sample files uploaded to 3 internal stages
+- ✅ Sample files uploaded to 4 internal stages
 
 ---
 

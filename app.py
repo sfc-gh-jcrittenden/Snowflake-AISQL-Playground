@@ -9,6 +9,9 @@ import streamlit as st
 from snowflake.snowpark.context import get_active_session
 from snowflake.snowpark.functions import col
 import json
+import io
+import base64
+import pypdfium2 as pdfium
 
 # Configure page - MUST be first Streamlit command
 st.set_page_config(
@@ -234,6 +237,28 @@ def show_multimodal_support(text=True, images=False, documents=False, audio=Fals
         🎯 {caps_str}
     </span>"""
 
+def previous_pdf_page():
+    """Navigate to previous PDF page"""
+    if st.session_state['pdf_page'] > 0:
+        st.session_state['pdf_page'] -= 1
+
+def next_pdf_page():
+    """Navigate to next PDF page"""
+    if st.session_state['pdf_page'] < len(st.session_state['pdf_doc']) - 1:
+        st.session_state['pdf_page'] += 1
+
+def display_pdf_page():
+    """Display the current PDF page as an image"""
+    pdf = st.session_state['pdf_doc']
+    page_index = st.session_state['pdf_page']
+    
+    # Render the page to an image
+    page = pdf[page_index]
+    pil_image = page.render(scale=2).to_pil()
+    
+    # Display the image
+    st.image(pil_image, use_container_width=True)
+
 # =============================================================================
 # PAGE NAVIGATION
 # =============================================================================
@@ -412,6 +437,14 @@ def page_ai_complete():
     
     [View full pricing](https://www.snowflake.com/legal-files/CreditConsumptionTable.pdf)
     """, unsafe_allow_html=True)
+    
+    # Model availability disclaimer
+    st.info("""
+    ⚠️ **Model Availability Note:** Not all AI models are available by default in every Snowflake region. 
+    Some models may require enabling **cross-region inference** to access models hosted in different regions. 
+    
+    📖 Learn more: [Cross-Region Inference Documentation](https://docs.snowflake.com/en/user-guide/snowflake-cortex/cross-region-inference#label-use-cross-region-inference)
+    """)
     
     # Example 1: Menu Description Generation
     show_example_card(
@@ -921,7 +954,7 @@ def page_ai_extract():
     multimodal_badge = show_multimodal_support(text=True, images=True, documents=True, audio=False)
     st.markdown(f"""
     **AI_EXTRACT** extracts specific information from text, documents, and images based on your questions.
-    Perfect for parsing reviews, extracting entities, and structured data extraction.
+    Perfect for parsing invoices, extracting entities, and structured data extraction from PDFs.
     
     {multimodal_badge} &nbsp;&nbsp; 📖 [View Documentation](https://docs.snowflake.com/en/sql-reference/functions/ai_extract)
     
@@ -990,7 +1023,7 @@ def page_ai_extract():
     
     st.markdown("---")
     
-    # Example 2: Extract Structured Data
+    # Example 2: Extract Structured Data from Support Tickets
     show_example_card(
         "Extract Issue Details from All Support Tickets",
         "Parse all support tickets to extract key information",
@@ -1092,6 +1125,418 @@ def page_ai_extract():
             if result:
                 st.json(json.loads(result[0]['EXTRACTION_RESULT']))
                 st.code(query, language="sql")
+    
+    st.markdown("---")
+    
+    # Example 4: Extract from Single Supplier Invoice
+    show_example_card(
+        "Extract Structured Data from a Supplier Invoice PDF",
+        "Use AI_EXTRACT to pull key invoice fields from a PDF document",
+        4
+    )
+    
+    # Check if invoices exist in the stage
+    stage_check_query = """
+        SELECT COUNT(*) as cnt 
+        FROM DIRECTORY(@AISQL_DEMO.DEMO.SUPPLIER_DOCUMENTS_STAGE) 
+        WHERE RELATIVE_PATH LIKE '%supplier_invoice%'
+    """
+    stage_result, _ = execute_query(stage_check_query)
+    invoice_count = stage_result[0]['CNT'] if stage_result else 0
+    
+    if invoice_count == 0:
+        st.warning("""
+        ⚠️ **No supplier invoices found in SUPPLIER_DOCUMENTS_STAGE**
+        
+        To use this demo:
+        1. Generate invoices: `python generate_supplier_invoices.py`
+        2. Upload to Snowflake: `PUT file://supplier_invoice_*.pdf @SUPPLIER_DOCUMENTS_STAGE AUTO_COMPRESS=FALSE;`
+        """)
+    else:
+        st.success(f"✅ Found {invoice_count} supplier invoice(s) in the stage")
+        
+        # Get list of available invoices
+        invoices_query = """
+            SELECT RELATIVE_PATH 
+            FROM DIRECTORY(@AISQL_DEMO.DEMO.SUPPLIER_DOCUMENTS_STAGE) 
+            WHERE RELATIVE_PATH LIKE '%supplier_invoice%'
+            ORDER BY RELATIVE_PATH
+        """
+        invoices_result, _ = execute_query(invoices_query)
+        
+        if invoices_result:
+            invoice_files = [row['RELATIVE_PATH'] for row in invoices_result]
+            
+            selected_invoice = st.selectbox(
+                "Select an invoice to extract:",
+                invoice_files,
+                index=0,
+                key="single_invoice_select"
+            )
+            
+            if st.button("🔍 Extract Invoice Data", key="extract_single_invoice"):
+                with st.spinner("Extracting data from invoice PDF..."):
+                    query = f"""
+                    WITH extracted_json AS (
+                        SELECT 
+                            '{selected_invoice}' as file_name,
+                            BUILD_SCOPED_FILE_URL(@AISQL_DEMO.DEMO.SUPPLIER_DOCUMENTS_STAGE, '{selected_invoice}') as file_url,
+                            AI_EXTRACT(
+                                file => TO_FILE('@AISQL_DEMO.DEMO.SUPPLIER_DOCUMENTS_STAGE', '{selected_invoice}'),
+                                responseFormat => {{
+                                    'invoice_number': 'The invoice number (e.g., INV-1001)',
+                                    'invoice_date': 'The invoice date in YYYY-MM-DD format',
+                                    'supplier_name': 'The supplier/vendor company name',
+                                    'supplier_address': 'The complete supplier address',
+                                    'supplier_phone': 'The supplier phone number',
+                                    'customer_name': 'The customer company name (should be Guac n Roll)',
+                                    'customer_address': 'The complete customer address',
+                                    'customer_phone': 'The customer phone number',
+                                    'subtotal': 'The subtotal amount before tax as a number',
+                                    'tax_amount': 'The tax amount as a number',
+                                    'total_amount': 'The total invoice amount as a number',
+                                    'payment_terms': 'The payment terms (e.g., Net 30 Days)',
+                                    'item_count': 'The number of line items in the invoice'
+                                }}
+                            ) AS extracted_json
+                    )
+                    SELECT
+                        file_name,
+                        file_url,
+                        extracted_json:response:invoice_number::string as invoice_number,
+                        extracted_json:response:invoice_date::date as invoice_date,
+                        extracted_json:response:supplier_name::string as supplier_name,
+                        extracted_json:response:supplier_address::string as supplier_address,
+                        extracted_json:response:supplier_phone::string as supplier_phone,
+                        extracted_json:response:customer_name::string as customer_name,
+                        extracted_json:response:customer_address::string as customer_address,
+                        extracted_json:response:customer_phone::string as customer_phone,
+                        REPLACE(extracted_json:response:subtotal, '$', '')::float as subtotal,
+                        REPLACE(extracted_json:response:tax_amount, '$', '')::float as tax_amount,
+                        REPLACE(extracted_json:response:total_amount, '$', '')::float as total_amount,
+                        extracted_json:response:payment_terms::string as payment_terms,
+                        extracted_json:response:item_count::integer as item_count,
+                        extracted_json as raw_json
+                    FROM extracted_json
+                    """
+                    
+                    result, error = execute_query(query)
+                    if result and not error:
+                        row = result[0]
+                        
+                        st.success("✅ Data extracted and parsed successfully!")
+                        
+                        col1, col2 = st.columns(2)
+                        
+                        with col1:
+                            st.markdown("#### 📋 Extracted JSON")
+                            st.json(row['RAW_JSON'])
+                        
+                        with col2:
+                            st.markdown("#### 📄 Invoice PDF")
+                            # Display PDF
+                            try:
+                                # Initialize session state for PDF viewing
+                                if 'pdf_page' not in st.session_state:
+                                    st.session_state['pdf_page'] = 0
+                                
+                                if 'pdf_url' not in st.session_state:
+                                    st.session_state['pdf_url'] = selected_invoice
+                                
+                                if 'pdf_doc' not in st.session_state or st.session_state['pdf_url'] != selected_invoice:
+                                    pdf_stream = session.file.get_stream(f"@AISQL_DEMO.DEMO.SUPPLIER_DOCUMENTS_STAGE/{selected_invoice}", decompress=False)
+                                    pdf = pdfium.PdfDocument(pdf_stream)
+                                    st.session_state['pdf_doc'] = pdf
+                                    st.session_state['pdf_url'] = selected_invoice
+                                    st.session_state['pdf_page'] = 0
+                                
+                                # Display current page
+                                display_pdf_page()
+                                
+                                # Download button
+                                pdf_stream_download = session.file.get_stream(f"@AISQL_DEMO.DEMO.SUPPLIER_DOCUMENTS_STAGE/{selected_invoice}", decompress=False)
+                                pdf_binary_data = pdf_stream_download.read()
+                                st.download_button(
+                                    label="📥 Download Invoice PDF",
+                                    data=pdf_binary_data,
+                                    file_name=selected_invoice,
+                                    mime="application/pdf",
+                                    use_container_width=True
+                                )
+                                
+                            except Exception as e:
+                                st.error(f"Error retrieving PDF from Snowflake stage: {e}")
+                                st.info("Please ensure the stage path and file name are correct and you have necessary permissions.")
+                        
+                        with st.expander("🔍 View SQL Query"):
+                            st.code(query, language="sql")
+                    elif error:
+                        st.error(f"Error: {error}")
+    
+    st.markdown("---")
+    
+    # Example 5: Extract All Invoices and Load into Table
+    show_example_card(
+        "Batch Extract All Supplier Invoices & Load into Table",
+        "Process all invoices at once, extract structured data, and insert into SUPPLIER_INVOICE_DETAILS table",
+        5
+    )
+    
+    if invoice_count == 0:
+        st.warning("⚠️ No supplier invoices found. Please upload invoices to the stage first.")
+    else:
+        st.info(f"📄 **Ready to process {invoice_count} invoice(s)**")
+        
+        col1, col2 = st.columns(2)
+        
+        with col1:
+            if st.button("🔍 Extract All Invoices", key="extract_all_invoices"):
+                with st.spinner(f"Extracting data from {invoice_count} invoice(s)..."):
+                    query = """
+                    WITH extracted_json AS (
+                        SELECT 
+                            RELATIVE_PATH as file_name,
+                            BUILD_SCOPED_FILE_URL(@AISQL_DEMO.DEMO.SUPPLIER_DOCUMENTS_STAGE, RELATIVE_PATH) as file_url,
+                            AI_EXTRACT(
+                                file => TO_FILE('@AISQL_DEMO.DEMO.SUPPLIER_DOCUMENTS_STAGE', RELATIVE_PATH),
+                                responseFormat => {
+                                    'invoice_number': 'The invoice number (e.g., INV-1001)',
+                                    'invoice_date': 'The invoice date in YYYY-MM-DD format',
+                                    'supplier_name': 'The supplier/vendor company name',
+                                    'supplier_address': 'The complete supplier address',
+                                    'supplier_phone': 'The supplier phone number',
+                                    'customer_name': 'The customer company name (should be Guac n Roll)',
+                                    'customer_address': 'The complete customer address',
+                                    'customer_phone': 'The customer phone number',
+                                    'subtotal': 'The subtotal amount before tax as a number',
+                                    'tax_amount': 'The tax amount as a number',
+                                    'total_amount': 'The total invoice amount as a number',
+                                    'payment_terms': 'The payment terms (e.g., Net 30 Days)',
+                                    'item_count': 'The number of line items in the invoice'
+                                }
+                            ) AS extracted_json
+                        FROM DIRECTORY(@AISQL_DEMO.DEMO.SUPPLIER_DOCUMENTS_STAGE)
+                        WHERE RELATIVE_PATH LIKE '%supplier_invoice%'
+                    )
+                    SELECT
+                        file_name,
+                        file_url,
+                        extracted_json:response:invoice_number::string as invoice_number,
+                        extracted_json:response:invoice_date::date as invoice_date,
+                        extracted_json:response:supplier_name::string as supplier_name,
+                        extracted_json:response:supplier_address::string as supplier_address,
+                        extracted_json:response:supplier_phone::string as supplier_phone,
+                        extracted_json:response:customer_name::string as customer_name,
+                        extracted_json:response:customer_address::string as customer_address,
+                        extracted_json:response:customer_phone::string as customer_phone,
+                        REPLACE(extracted_json:response:subtotal, '$', '')::float as subtotal,
+                        REPLACE(extracted_json:response:tax_amount, '$', '')::float as tax_amount,
+                        REPLACE(extracted_json:response:total_amount, '$', '')::float as total_amount,
+                        extracted_json:response:payment_terms::string as payment_terms,
+                        extracted_json:response:item_count::integer as item_count,
+                        extracted_json as raw_json
+                    FROM extracted_json
+                    ORDER BY file_name
+                    """
+                    
+                    result, error = execute_query(query)
+                    if result and not error:
+                        st.success(f"**✅ Extracted and parsed data from {len(result)} invoice(s)!**")
+                        
+                        # Display the extracted data
+                        display_data = []
+                        for row in result:
+                            display_data.append({
+                                'File': row['FILE_NAME'],
+                                'Invoice #': row['INVOICE_NUMBER'] or 'N/A',
+                                'Date': row['INVOICE_DATE'] or 'N/A',
+                                'Supplier': row['SUPPLIER_NAME'] or 'N/A',
+                                'Subtotal': f"${row['SUBTOTAL']:.2f}" if row['SUBTOTAL'] else 'N/A',
+                                'Tax': f"${row['TAX_AMOUNT']:.2f}" if row['TAX_AMOUNT'] else 'N/A',
+                                'Total': f"${row['TOTAL_AMOUNT']:.2f}" if row['TOTAL_AMOUNT'] else 'N/A',
+                                'Items': row['ITEM_COUNT'] or 'N/A'
+                            })
+                        
+                        st.dataframe(display_data, use_container_width=True)
+                        
+                        with st.expander("🔍 View SQL Query"):
+                            st.code(query, language="sql")
+                    elif error:
+                        st.error(f"Error: {error}")
+        
+        with col2:
+            if st.button("💾 Extract & Load into Table", key="load_invoices_table"):
+                with st.spinner("Extracting and loading data into SUPPLIER_INVOICE_DETAILS table..."):
+                    # Truncate table first
+                    truncate_query = "TRUNCATE TABLE AISQL_DEMO.DEMO.SUPPLIER_INVOICE_DETAILS"
+                    session.sql(truncate_query).collect()
+                    st.info("🗑️ Table truncated, now extracting and loading...")
+                    
+                    # Extract and insert
+                    insert_query = """
+                    INSERT INTO AISQL_DEMO.DEMO.SUPPLIER_INVOICE_DETAILS (
+                        file_name,
+                        file_url,
+                        invoice_number,
+                        invoice_date,
+                        supplier_name,
+                        supplier_address,
+                        supplier_phone,
+                        customer_name,
+                        customer_address,
+                        customer_phone,
+                        subtotal,
+                        tax_amount,
+                        total_amount,
+                        payment_terms,
+                        item_count,
+                        extraction_date,
+                        raw_json
+                    )
+                    WITH extracted_json AS (
+                        SELECT 
+                            RELATIVE_PATH as file_name,
+                            BUILD_SCOPED_FILE_URL(@AISQL_DEMO.DEMO.SUPPLIER_DOCUMENTS_STAGE, RELATIVE_PATH) as file_url,
+                            AI_EXTRACT(
+                                file => TO_FILE('@AISQL_DEMO.DEMO.SUPPLIER_DOCUMENTS_STAGE', RELATIVE_PATH),
+                                responseFormat => {
+                                    'invoice_number': 'The invoice number (e.g., INV-1001)',
+                                    'invoice_date': 'The invoice date in YYYY-MM-DD format',
+                                    'supplier_name': 'The supplier/vendor company name',
+                                    'supplier_address': 'The complete supplier address',
+                                    'supplier_phone': 'The supplier phone number',
+                                    'customer_name': 'The customer company name (should be Guac n Roll)',
+                                    'customer_address': 'The complete customer address',
+                                    'customer_phone': 'The customer phone number',
+                                    'subtotal': 'The subtotal amount before tax as a number',
+                                    'tax_amount': 'The tax amount as a number',
+                                    'total_amount': 'The total invoice amount as a number',
+                                    'payment_terms': 'The payment terms (e.g., Net 30 Days)',
+                                    'item_count': 'The number of line items in the invoice'
+                                }
+                            ) AS extracted_json
+                        FROM DIRECTORY(@AISQL_DEMO.DEMO.SUPPLIER_DOCUMENTS_STAGE)
+                        WHERE RELATIVE_PATH LIKE '%supplier_invoice%'
+                    )
+                    SELECT
+                        file_name,
+                        file_url,
+                        extracted_json:response:invoice_number::string,
+                        extracted_json:response:invoice_date::date,
+                        extracted_json:response:supplier_name::string,
+                        extracted_json:response:supplier_address::string,
+                        extracted_json:response:supplier_phone::string,
+                        extracted_json:response:customer_name::string,
+                        extracted_json:response:customer_address::string,
+                        extracted_json:response:customer_phone::string,
+                        REPLACE(extracted_json:response:subtotal, '$', '')::float,
+                        REPLACE(extracted_json:response:tax_amount, '$', '')::float,
+                        REPLACE(extracted_json:response:total_amount, '$', '')::float,
+                        extracted_json:response:payment_terms::string,
+                        extracted_json:response:item_count::integer,
+                        CURRENT_DATE as extraction_date,
+                        extracted_json as raw_json
+                    FROM extracted_json
+                    """
+                    
+                    try:
+                        result, error = execute_query(insert_query)
+                        
+                        if not error:
+                            st.success("✅ Data loaded successfully into SUPPLIER_INVOICE_DETAILS table!")
+                            
+                            # Show row count
+                            count_query = "SELECT COUNT(*) as cnt FROM AISQL_DEMO.DEMO.SUPPLIER_INVOICE_DETAILS"
+                            count_result, _ = execute_query(count_query)
+                            if count_result:
+                                st.info(f"📊 Total records loaded: {count_result[0]['CNT']}")
+                            
+                            # Show loaded data
+                            display_query = """
+                            SELECT 
+                                invoice_number,
+                                invoice_date,
+                                supplier_name,
+                                subtotal,
+                                tax_amount,
+                                total_amount,
+                                payment_terms,
+                                item_count
+                            FROM AISQL_DEMO.DEMO.SUPPLIER_INVOICE_DETAILS
+                            ORDER BY invoice_date DESC
+                            """
+                            display_result, _ = execute_query(display_query)
+                            if display_result:
+                                st.markdown("**📊 Loaded Invoice Data:**")
+                                st.dataframe(display_result, use_container_width=True)
+                            
+                            with st.expander("🔍 View INSERT SQL Query"):
+                                st.code(insert_query, language="sql")
+                        else:
+                            st.error(f"Error loading data: {error}")
+                    except Exception as e:
+                        st.error(f"Error: {str(e)}")
+    
+    st.markdown("---")
+    
+    # Example 6: Invoice Analytics
+    show_example_card(
+        "Analyze Extracted Invoice Data",
+        "Query the SUPPLIER_INVOICE_DETAILS table to gain business insights",
+        6
+    )
+    
+    # Check if table has data
+    count_query = "SELECT COUNT(*) as cnt FROM AISQL_DEMO.DEMO.SUPPLIER_INVOICE_DETAILS"
+    count_result, _ = execute_query(count_query)
+    table_count = count_result[0]['CNT'] if count_result else 0
+    
+    if table_count == 0:
+        st.warning("⚠️ No data in SUPPLIER_INVOICE_DETAILS table. Please run Example 5 to extract and load invoices first.")
+    else:
+        st.success(f"✅ Analyzing {table_count} invoice(s) from the database")
+        
+        # Monthly Spending Trends
+        st.markdown("#### 📅 Monthly Spending Trends")
+        query2 = """
+        SELECT 
+            DATE_TRUNC('MONTH', invoice_date) as invoice_month,
+            COUNT(*) as invoice_count,
+            SUM(total_amount) as total_spent,
+            AVG(total_amount) as avg_invoice,
+            SUM(tax_amount) as total_tax
+        FROM AISQL_DEMO.DEMO.SUPPLIER_INVOICE_DETAILS
+        GROUP BY DATE_TRUNC('MONTH', invoice_date)
+        ORDER BY invoice_month DESC
+        """
+        result2, _ = execute_query(query2)
+        if result2:
+            st.dataframe(result2, use_container_width=True)
+            with st.expander("🔍 View SQL"):
+                st.code(query2, language="sql")
+        
+        st.markdown("---")
+        st.markdown("#### 📋 All Invoice Details")
+        query4 = """
+        SELECT 
+            invoice_number,
+            invoice_date,
+            supplier_name,
+            supplier_phone,
+            subtotal,
+            tax_amount,
+            total_amount,
+            payment_terms,
+            item_count,
+            extraction_date
+        FROM AISQL_DEMO.DEMO.SUPPLIER_INVOICE_DETAILS
+        ORDER BY invoice_date DESC
+        """
+        result4, _ = execute_query(query4)
+        if result4:
+            st.dataframe(result4, use_container_width=True)
+            with st.expander("🔍 View SQL"):
+                st.code(query4, language="sql")
 
 # =============================================================================
 # PAGE: AI_CLASSIFY
@@ -2366,11 +2811,28 @@ def page_ai_parse_document():
     [View pricing details](https://www.snowflake.com/legal-files/CreditConsumptionTable.pdf)
     """, unsafe_allow_html=True)
     
-    # Available PDF documents
-    pdf_docs = {
-        "Snowflake-FY26Q2-Earnings.pdf": "Snowflake Q2 FY26 Earnings Report",
-        "Snowflake-2025-Annual-Report.pdf": "Snowflake 2025 Annual Report"
-    }
+    # Get available PDF documents from stage
+    docs_query = "SELECT RELATIVE_PATH FROM DIRECTORY(@AISQL_DEMO.DEMO.DOCUMENT_STAGE) ORDER BY RELATIVE_PATH"
+    docs_result, docs_error = execute_query(docs_query)
+    
+    if docs_error or not docs_result:
+        st.warning("⚠️ No documents found in DOCUMENT_STAGE. Please upload PDF documents to the stage first.")
+        st.info("""
+        **To upload documents:**
+        1. Use `PUT file://your_document.pdf @AISQL_DEMO.DEMO.DOCUMENT_STAGE AUTO_COMPRESS=FALSE;`
+        2. Or upload via Snowsight UI to the DOCUMENT_STAGE
+        """)
+        return
+    
+    available_docs = [row['RELATIVE_PATH'] for row in docs_result]
+    doc_count = len(available_docs)
+    
+    st.success(f"✅ Found {doc_count} document(s) in DOCUMENT_STAGE")
+    
+    # Show available documents
+    with st.expander("📄 Available Documents", expanded=False):
+        for doc in available_docs:
+            st.markdown(f"- {doc}")
     
     # Example 1: Parse and Store Documents
     show_example_card(
@@ -2393,14 +2855,14 @@ def page_ai_parse_document():
                f"{'Faster processing, extracts plain text only (0.5 credits/1K pages)' if parse_mode == 'OCR' else 'Preserves document structure, tables, and formatting - slower processing but more accurate (3.33 credits/1K pages)'}")
     
     if st.button("Parse All Documents", key="parse_all_docs"):
-        with st.spinner(f"Parsing documents in {parse_mode} mode..."):
+        with st.spinner(f"Parsing {doc_count} document(s) in {parse_mode} mode..."):
             # First, truncate existing table
             truncate_query = "TRUNCATE TABLE AISQL_DEMO.DEMO.PARSE_DOC_RAW_TEXT;"
             execute_query(truncate_query)
             
             total_docs = 0
-            for doc_file, doc_title in pdf_docs.items():
-                st.write(f"Processing **{doc_title}**...")
+            for doc_file in available_docs:
+                st.write(f"Processing **{doc_file}**...")
                 
                 # Parse and store raw text
                 parse_query = f"""
@@ -2421,9 +2883,9 @@ def page_ai_parse_document():
                 
                 if not error:
                     total_docs += 1
-                    st.success(f"✅ {doc_title} parsed successfully")
+                    st.success(f"✅ {doc_file} parsed successfully")
                 else:
-                    st.error(f"❌ Error parsing {doc_title}: {error}")
+                    st.error(f"❌ Error parsing {doc_file}: {error}")
             
             if total_docs > 0:
                 st.success(f"**🎉 Successfully parsed {total_docs} document(s) in {parse_mode} mode!**")
