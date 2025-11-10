@@ -6,7 +6,7 @@
 -- ============================================================================
 
 -- Create warehouse for the demo (X-SMALL Gen2)
-CREATE OR REPLACE WAREHOUSE AISQL_DEMO_WH
+CREATE OR REPLACE WAREHOUSE AISQL_PLAYGROUND_WH
     WAREHOUSE_SIZE = 'X-SMALL'
     WAREHOUSE_TYPE = 'STANDARD'
     AUTO_SUSPEND = 300
@@ -15,9 +15,9 @@ CREATE OR REPLACE WAREHOUSE AISQL_DEMO_WH
     COMMENT = 'Warehouse for AISQL Demo Streamlit app and query execution';
 
 -- Create database and schema
-CREATE DATABASE IF NOT EXISTS AISQL_DEMO;
-USE DATABASE AISQL_DEMO;
-USE WAREHOUSE AISQL_DEMO_WH;
+CREATE DATABASE IF NOT EXISTS AISQL_PLAYGROUND;
+USE DATABASE AISQL_PLAYGROUND;
+USE WAREHOUSE AISQL_PLAYGROUND_WH;
 CREATE SCHEMA IF NOT EXISTS DEMO;
 USE SCHEMA DEMO;
 
@@ -27,19 +27,23 @@ USE SCHEMA DEMO;
 
 -- Stage for audio files (transcription demos)
 CREATE OR REPLACE STAGE AUDIO_STAGE
-    ENCRYPTION = (TYPE = 'SNOWFLAKE_SSE');
+    ENCRYPTION = (TYPE = 'SNOWFLAKE_SSE')
+    DIRECTORY = (ENABLE = TRUE);
 
 -- Stage for document files (parsing and extraction demos)
 CREATE OR REPLACE STAGE DOCUMENT_STAGE
-    ENCRYPTION = (TYPE = 'SNOWFLAKE_SSE');
+    ENCRYPTION = (TYPE = 'SNOWFLAKE_SSE')
+    DIRECTORY = (ENABLE = TRUE);
 
 -- Stage for supplier invoice documents (AI_EXTRACT demos)
 CREATE OR REPLACE STAGE SUPPLIER_DOCUMENTS_STAGE
-    ENCRYPTION = (TYPE = 'SNOWFLAKE_SSE');
+    ENCRYPTION = (TYPE = 'SNOWFLAKE_SSE')
+    DIRECTORY = (ENABLE = TRUE);
 
 -- Stage for image files (image analysis demos)
 CREATE OR REPLACE STAGE IMAGE_STAGE
-    ENCRYPTION = (TYPE = 'SNOWFLAKE_SSE');
+    ENCRYPTION = (TYPE = 'SNOWFLAKE_SSE')
+    DIRECTORY = (ENABLE = TRUE);
 
 -- ============================================================================
 -- CREATE TABLES FOR STRUCTURED DATA
@@ -227,7 +231,8 @@ INSERT INTO CUSTOMER_REVIEWS (customer_name, food_truck_name, menu_item, review_
 ('Angela White', 'Kitakata Ramen Bar', 'Tonkotsu Ramen', 'The ramen was okay but the wait time was over 45 minutes. For a food truck, that is way too long. The taste was good but not worth the wait.', '2024-11-22', 3, 'English'),
 ('Brian Taylor', 'Revenge of the Curds', 'Classic Poutine', 'As a Canadian living in Seattle, I can confirm this is authentic poutine! The gravy recipe must be from Quebec. So happy to find this gem!', '2024-11-23', 5, 'English'),
 ('Monica Harris', 'Le Coin des Crêpes', 'Nutella Banana Crêpe', 'The crêpe was delicious but there was not enough Nutella. For the price, I expected more filling. Still tasty though!', '2024-11-24', 3, 'English'),
-('Kevin Anderson', 'Nani''s Kitchen', 'Chicken Tikka Masala', 'Best Indian food I have had from a food truck! The curry is rich and creamy, the chicken is tender, and the spice level is perfect. Will be back weekly!', '2024-11-25', 5, 'English');
+('Kevin Anderson', 'Nani''s Kitchen', 'Chicken Tikka Masala', 'Best Indian food I have had from a food truck! The curry is rich and creamy, the chicken is tender, and the spice level is perfect. Will be back weekly!', '2024-11-25', 5, 'English'),
+('Gregory Peterson', 'Smoky BBQ', 'Pulled Pork Sandwich', 'Outstanding BBQ! The pulled pork is incredibly tender and smoky. The BBQ sauce has the perfect balance of sweet and tangy. The portion size is generous and the service was quick. This is now my go-to spot for authentic BBQ!', '2024-11-26', 5, 'English');
 
 -- ============================================================================
 -- INSERT SAMPLE DATA - SUPPORT TICKETS (NO PII)
@@ -312,8 +317,8 @@ ORDER BY order_count DESC;
 -- ============================================================================
 
 -- Grant usage on database and schema
-GRANT USAGE ON DATABASE AISQL_DEMO TO ROLE SYSADMIN;
-GRANT USAGE ON SCHEMA AISQL_DEMO.DEMO TO ROLE SYSADMIN;
+GRANT USAGE ON DATABASE AISQL_PLAYGROUND TO ROLE SYSADMIN;
+GRANT USAGE ON SCHEMA AISQL_PLAYGROUND.DEMO TO ROLE SYSADMIN;
 
 -- Create warehouse for Cortex Search (if not exists)
 CREATE WAREHOUSE IF NOT EXISTS CORTEX_SEARCH_WH
@@ -322,16 +327,16 @@ CREATE WAREHOUSE IF NOT EXISTS CORTEX_SEARCH_WH
     AUTO_RESUME = TRUE;
 
 -- Grant privileges on all tables
-GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA AISQL_DEMO.DEMO TO ROLE SYSADMIN;
+GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA AISQL_PLAYGROUND.DEMO TO ROLE SYSADMIN;
 
 -- Grant privileges on stages
-GRANT READ, WRITE ON STAGE AISQL_DEMO.DEMO.AUDIO_STAGE TO ROLE SYSADMIN;
-GRANT READ, WRITE ON STAGE AISQL_DEMO.DEMO.DOCUMENT_STAGE TO ROLE SYSADMIN;
-GRANT READ, WRITE ON STAGE AISQL_DEMO.DEMO.SUPPLIER_DOCUMENTS_STAGE TO ROLE SYSADMIN;
-GRANT READ, WRITE ON STAGE AISQL_DEMO.DEMO.IMAGE_STAGE TO ROLE SYSADMIN;
+GRANT READ, WRITE ON STAGE AISQL_PLAYGROUND.DEMO.AUDIO_STAGE TO ROLE SYSADMIN;
+GRANT READ, WRITE ON STAGE AISQL_PLAYGROUND.DEMO.DOCUMENT_STAGE TO ROLE SYSADMIN;
+GRANT READ, WRITE ON STAGE AISQL_PLAYGROUND.DEMO.SUPPLIER_DOCUMENTS_STAGE TO ROLE SYSADMIN;
+GRANT READ, WRITE ON STAGE AISQL_PLAYGROUND.DEMO.IMAGE_STAGE TO ROLE SYSADMIN;
 
 -- Grant privileges on views
-GRANT SELECT ON ALL VIEWS IN SCHEMA AISQL_DEMO.DEMO TO ROLE SYSADMIN;
+GRANT SELECT ON ALL VIEWS IN SCHEMA AISQL_PLAYGROUND.DEMO TO ROLE SYSADMIN;
 
 -- ============================================================================
 -- VERIFICATION QUERIES
@@ -366,28 +371,23 @@ SHOW STAGES;
 
 -- After running this script, you will need to manually upload sample files:
 -- 
+-- Option 1: Using Snowsight UI (Manual Upload)
+-- Navigate to Data > Databases > AISQL_PLAYGROUND > DEMO > Stages
+-- Select the appropriate stage and click "+ Files" to upload files
+-- Documentation: https://docs.snowflake.com/en/user-guide/data-load-local-file-system-stage-ui
+--
+-- Option 2: Using Snowflake CLI (PUT command)
 -- 1. AUDIO FILES (for AI_TRANSCRIBE examples):
---    Upload sample audio files to AUDIO_STAGE using:
 --    PUT file:///path/to/audio.wav @AUDIO_STAGE AUTO_COMPRESS=FALSE;
 --
 -- 2. DOCUMENT FILES (for AI_PARSE_DOCUMENT examples):
---    Upload sample PDF/DOC files to DOCUMENT_STAGE using:
 --    PUT file:///path/to/document.pdf @DOCUMENT_STAGE AUTO_COMPRESS=FALSE;
 --
 -- 3. SUPPLIER INVOICE FILES (for AI_EXTRACT examples):
---    Upload supplier invoice PDFs to SUPPLIER_DOCUMENTS_STAGE using:
 --    PUT file://supplier_invoice_*.pdf @SUPPLIER_DOCUMENTS_STAGE AUTO_COMPRESS=FALSE;
 --
 -- 4. IMAGE FILES (for AI_CLASSIFY and AI_COMPLETE image examples):
---    Upload sample images to IMAGE_STAGE using:
 --    PUT file:///path/to/image.jpg @IMAGE_STAGE AUTO_COMPRESS=FALSE;
---
--- Note: You can also generate synthetic audio/documents or use public domain
--- content for demonstration purposes.
---
--- To generate the 10 supplier invoice PDFs:
---    python generate_supplier_invoices.py
--- Then upload them to SUPPLIER_DOCUMENTS_STAGE.
 
 -- ============================================================================
 -- END OF SETUP SCRIPT

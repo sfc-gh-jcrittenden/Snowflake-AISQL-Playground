@@ -28,13 +28,13 @@ This demo application provides interactive examples of 12 core AISQL functions w
 ### Compute Resources
 | Object Type | Name | Configuration |
 |-------------|------|---------------|
-| Warehouse | `AISQL_DEMO_WH` | XSMALL Gen2, auto-suspend 300s |
+| Warehouse | `AISQL_PLAYGROUND_WH` | XSMALL Gen2, auto-suspend 300s |
 | Warehouse | `CORTEX_SEARCH_WH` | XSMALL, auto-suspend 60s |
 
 ### Data Organization
 | Object Type | Name | Description |
 |-------------|------|-------------|
-| Database | `AISQL_DEMO` | Main database for all demo objects |
+| Database | `AISQL_PLAYGROUND` | Main database for all demo objects |
 | Schema | `DEMO` | Schema containing all tables, stages, and views |
 
 ### Storage Stages
@@ -106,12 +106,12 @@ This demo application provides interactive examples of 12 core AISQL functions w
 
 ```sql
 -- Execute entire setup_database.sql file in Snowflake worksheet
--- This creates AISQL_DEMO database with sample data
+-- This creates AISQL_PLAYGROUND database with sample data
 ```
 
 **Verify:**
 ```sql
-USE DATABASE AISQL_DEMO;
+USE DATABASE AISQL_PLAYGROUND;
 USE SCHEMA DEMO;
 SHOW TABLES;  -- Should show 8 tables
 ```
@@ -134,11 +134,13 @@ Expected Tables:
 2. Click **+ Streamlit App**
 3. Settings:
    - Name: `AISQL_Demo_App`
-   - Location: `AISQL_DEMO.DEMO`
-   - Warehouse: AISQL_DEMO_WH (xsmall Gen2)
+   - Location: `AISQL_PLAYGROUND.DEMO`
+   - Warehouse: AISQL_PLAYGROUND_WH (xsmall Gen2)
 4. Delete default code
 5. Copy/paste entire `app.py` content
-6. Click **Run**
+6. Add the pypdfium2 package to the environment by using the "Packages" menu in the upper left-hand corner
+*NOTE: Streamlit, Snowpark, and their dependencies are automatically installed. This is how you can manually add new Python packages.*
+7. Click **Run**
 
 
 ### Step 3: Upload Sample Files to Stages (3 min)
@@ -156,12 +158,12 @@ Upload the provided sample files to their corresponding stages for the AI demos 
 
 #### Upload via Snowsight UI (Recommended)
 
-1. In Snowsight, navigate to **Data** → **Databases** → **AISQL_DEMO** → **DEMO**
+1. In Snowsight, navigate to **Data** → **Databases** → **AISQL_PLAYGROUND** → **DEMO**
 2. Click on **Stages** and select the target stage (e.g., `AUDIO_STAGE`)
 3. Click the **+ Files** button in the top right corner
 4. In the upload dialog:
    - Select or drag-and-drop files from the corresponding folder
-   - Verify the schema shows `AISQL_DEMO.DEMO`
+   - Verify the schema shows `AISQL_PLAYGROUND.DEMO`
    - Verify the stage name is correct
    - Leave the path field empty (optional)
    - Click **Upload**
@@ -175,10 +177,10 @@ Upload the provided sample files to their corresponding stages for the AI demos 
 
 **Verify uploads via SQL (optional):**
 ```sql
-LIST @AISQL_DEMO.DEMO.AUDIO_STAGE;               -- Should show 10 .wav files
-LIST @AISQL_DEMO.DEMO.DOCUMENT_STAGE;            -- Should show 2 .pdf files
-LIST @AISQL_DEMO.DEMO.IMAGE_STAGE;               -- Should show 10 .jpg files
-LIST @AISQL_DEMO.DEMO.SUPPLIER_DOCUMENTS_STAGE;  -- Should show 10 .pdf files
+LIST @AISQL_PLAYGROUND.DEMO.AUDIO_STAGE;               -- Should show 10 .wav files
+LIST @AISQL_PLAYGROUND.DEMO.DOCUMENT_STAGE;            -- Should show 2 .pdf files
+LIST @AISQL_PLAYGROUND.DEMO.IMAGE_STAGE;               -- Should show 10 .jpg files
+LIST @AISQL_PLAYGROUND.DEMO.SUPPLIER_DOCUMENTS_STAGE;  -- Should show 10 .pdf files
 ```
 
 📖 **Full Upload Documentation:** [Staging Files using Snowsight](https://docs.snowflake.com/en/user-guide/data-load-local-file-system-stage-ui)
@@ -187,11 +189,11 @@ LIST @AISQL_DEMO.DEMO.SUPPLIER_DOCUMENTS_STAGE;  -- Should show 10 .pdf files
 
 ```sql
 -- Replace YOUR_ROLE with actual role name
-GRANT USAGE ON DATABASE AISQL_DEMO TO ROLE YOUR_ROLE;
-GRANT USAGE ON SCHEMA AISQL_DEMO.DEMO TO ROLE YOUR_ROLE;
-GRANT SELECT ON ALL TABLES IN SCHEMA AISQL_DEMO.DEMO TO ROLE YOUR_ROLE;
+GRANT USAGE ON DATABASE AISQL_PLAYGROUND TO ROLE YOUR_ROLE;
+GRANT USAGE ON SCHEMA AISQL_PLAYGROUND.DEMO TO ROLE YOUR_ROLE;
+GRANT SELECT ON ALL TABLES IN SCHEMA AISQL_PLAYGROUND.DEMO TO ROLE YOUR_ROLE;
 GRANT DATABASE ROLE SNOWFLAKE.CORTEX_USER TO ROLE YOUR_ROLE;
-GRANT USAGE ON STREAMLIT AISQL_DEMO.DEMO.AISQL_DEMO_APP TO ROLE YOUR_ROLE;
+GRANT USAGE ON STREAMLIT AISQL_PLAYGROUND.DEMO.AISQL_PLAYGROUND_APP TO ROLE YOUR_ROLE;
 ```
 
 ### Step 5: Launch & Test
@@ -245,7 +247,7 @@ GRANT DATABASE ROLE SNOWFLAKE.CORTEX_USER TO ROLE YOUR_ROLE;
 ### Streamlit Won't Load
 **Check:**
 - Warehouse is running
-- App has AISQL_DEMO database access
+- App has AISQL_PLAYGROUND database access
 - No syntax errors in app.py
 
 ---
