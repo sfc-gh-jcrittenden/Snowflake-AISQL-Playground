@@ -1,16 +1,16 @@
-# Snowflake Cortex AISQL Playground
-Codebase for the Snowflake Cortex AISQL Playground Streamlit app
+# Snowflake Cortex AI Functions Playground
+Codebase for the Snowflake Cortex AI Functions Playground Streamlit app
 
 ---
 
 ## 🎯 Overview
 
-This demo application provides interactive examples of 12 core AISQL functions with:
-- **36 interactive examples** (3 per function)
+This demo application provides interactive examples of 12 core Cortex AI Functions with:
+- **36+ interactive examples** (3+ per function)
 - **Fictitious Tasty Bytes data** (100 rows across 7 tables)
 - **Live SQL execution** with result display
 - **Copy-paste ready queries** for learning
-- **Complete database setup** (16 objects + sample files in 20 minutes)
+- **Complete database setup** (16 objects + sample files in 15 minutes)
 
 ### Functions Showcased
 
@@ -28,13 +28,13 @@ This demo application provides interactive examples of 12 core AISQL functions w
 ### Compute Resources
 | Object Type | Name | Configuration |
 |-------------|------|---------------|
-| Warehouse | `AISQL_PLAYGROUND_WH` | XSMALL Gen2, auto-suspend 300s |
+| Warehouse | `AI_FUNCTIONS_PLAYGROUND_WH` | XSMALL Gen2, auto-suspend 300s |
 | Warehouse | `CORTEX_SEARCH_WH` | XSMALL, auto-suspend 60s |
 
 ### Data Organization
 | Object Type | Name | Description |
 |-------------|------|-------------|
-| Database | `AISQL_PLAYGROUND` | Main database for all demo objects |
+| Database | `AI_FUNCTIONS_PLAYGROUND` | Main database for all demo objects |
 | Schema | `DEMO` | Schema containing all tables, stages, and views |
 
 ### Storage Stages
@@ -67,7 +67,7 @@ This demo application provides interactive examples of 12 core AISQL functions w
 
 ---
 
-## 🤖 AISQL Functions Demonstrated
+## 🤖 Cortex AI Functions Demonstrated
 
 | # | Function | Category | Use Cases |
 |---|----------|----------|-----------|
@@ -102,16 +102,16 @@ This demo application provides interactive examples of 12 core AISQL functions w
 
 ## 🚀 Quick Start (15 minutes or less)
 
-### Step 1: Create Database (5 min)
+### Step 1: Create Database (3 min)
 
 ```sql
 -- Execute entire setup_database.sql file in Snowflake worksheet
--- This creates AISQL_PLAYGROUND database with sample data
+-- This creates AI_FUNCTIONS_PLAYGROUND database with sample data
 ```
 
 **Verify:**
 ```sql
-USE DATABASE AISQL_PLAYGROUND;
+USE DATABASE AI_FUNCTIONS_PLAYGROUND;
 USE SCHEMA DEMO;
 SHOW TABLES;  -- Should show 8 tables
 ```
@@ -133,9 +133,9 @@ Expected Tables:
 1. Navigate to **Projects** → **Streamlit**
 2. Click **+ Streamlit App**
 3. Settings:
-   - Name: `AISQL_Demo_App`
-   - Location: `AISQL_PLAYGROUND.DEMO`
-   - Warehouse: AISQL_PLAYGROUND_WH (xsmall Gen2)
+   - Name: `AI Functions_Demo_App`
+   - Location: `AI_FUNCTIONS_PLAYGROUND.DEMO`
+   - Warehouse: AI_FUNCTIONS_PLAYGROUND_WH (xsmall Gen2)
 4. Delete default code
 5. Copy/paste entire `app.py` content
 6. Add the pypdfium2 package to the environment by using the "Packages" menu in the upper left-hand corner
@@ -143,7 +143,7 @@ Expected Tables:
 7. Click **Run**
 
 
-### Step 3: Upload Sample Files to Stages (3 min)
+### Step 3: Upload Sample Files to Stages (5 min)
 
 Upload the provided sample files to their corresponding stages for the AI demos to work properly.
 
@@ -158,12 +158,12 @@ Upload the provided sample files to their corresponding stages for the AI demos 
 
 #### Upload via Snowsight UI (Recommended)
 
-1. In Snowsight, navigate to **Data** → **Databases** → **AISQL_PLAYGROUND** → **DEMO**
+1. In Snowsight, navigate to **Data** → **Databases** → **AI_FUNCTIONS_PLAYGROUND** → **DEMO**
 2. Click on **Stages** and select the target stage (e.g., `AUDIO_STAGE`)
 3. Click the **+ Files** button in the top right corner
 4. In the upload dialog:
    - Select or drag-and-drop files from the corresponding folder
-   - Verify the schema shows `AISQL_PLAYGROUND.DEMO`
+   - Verify the schema shows `AI_FUNCTIONS_PLAYGROUND.DEMO`
    - Verify the stage name is correct
    - Leave the path field empty (optional)
    - Click **Upload**
@@ -177,10 +177,10 @@ Upload the provided sample files to their corresponding stages for the AI demos 
 
 **Verify uploads via SQL (optional):**
 ```sql
-LIST @AISQL_PLAYGROUND.DEMO.AUDIO_STAGE;               -- Should show 10 .wav files
-LIST @AISQL_PLAYGROUND.DEMO.DOCUMENT_STAGE;            -- Should show 2 .pdf files
-LIST @AISQL_PLAYGROUND.DEMO.IMAGE_STAGE;               -- Should show 10 .jpg files
-LIST @AISQL_PLAYGROUND.DEMO.SUPPLIER_DOCUMENTS_STAGE;  -- Should show 10 .pdf files
+LIST @AI_FUNCTIONS_PLAYGROUND.DEMO.AUDIO_STAGE;               -- Should show 10 .wav files
+LIST @AI_FUNCTIONS_PLAYGROUND.DEMO.DOCUMENT_STAGE;            -- Should show 2 .pdf files
+LIST @AI_FUNCTIONS_PLAYGROUND.DEMO.IMAGE_STAGE;               -- Should show 10 .jpg files
+LIST @AI_FUNCTIONS_PLAYGROUND.DEMO.SUPPLIER_DOCUMENTS_STAGE;  -- Should show 10 .pdf files
 ```
 
 📖 **Full Upload Documentation:** [Staging Files using Snowsight](https://docs.snowflake.com/en/user-guide/data-load-local-file-system-stage-ui)
@@ -189,11 +189,11 @@ LIST @AISQL_PLAYGROUND.DEMO.SUPPLIER_DOCUMENTS_STAGE;  -- Should show 10 .pdf fi
 
 ```sql
 -- Replace YOUR_ROLE with actual role name
-GRANT USAGE ON DATABASE AISQL_PLAYGROUND TO ROLE YOUR_ROLE;
-GRANT USAGE ON SCHEMA AISQL_PLAYGROUND.DEMO TO ROLE YOUR_ROLE;
-GRANT SELECT ON ALL TABLES IN SCHEMA AISQL_PLAYGROUND.DEMO TO ROLE YOUR_ROLE;
+GRANT USAGE ON DATABASE AI_FUNCTIONS_PLAYGROUND TO ROLE YOUR_ROLE;
+GRANT USAGE ON SCHEMA AI_FUNCTIONS_PLAYGROUND.DEMO TO ROLE YOUR_ROLE;
+GRANT SELECT ON ALL TABLES IN SCHEMA AI_FUNCTIONS_PLAYGROUND.DEMO TO ROLE YOUR_ROLE;
 GRANT DATABASE ROLE SNOWFLAKE.CORTEX_USER TO ROLE YOUR_ROLE;
-GRANT USAGE ON STREAMLIT AISQL_PLAYGROUND.DEMO.AISQL_PLAYGROUND_APP TO ROLE YOUR_ROLE;
+GRANT USAGE ON STREAMLIT AI_FUNCTIONS_PLAYGROUND.DEMO.AI_FUNCTIONS_PLAYGROUND_APP TO ROLE YOUR_ROLE;
 ```
 
 ### Step 5: Launch & Test
@@ -247,14 +247,14 @@ GRANT DATABASE ROLE SNOWFLAKE.CORTEX_USER TO ROLE YOUR_ROLE;
 ### Streamlit Won't Load
 **Check:**
 - Warehouse is running
-- App has AISQL_PLAYGROUND database access
+- App has AI_FUNCTIONS_PLAYGROUND database access
 - No syntax errors in app.py
 
 ---
 
 ## 📖 Additional Resources
 
-- **AISQL Docs**: https://docs.snowflake.com/en/user-guide/snowflake-cortex/aisql
+- **Cortex AI Functions Docs**: https://docs.snowflake.com/en/user-guide/snowflake-cortex/cortex-ai-functions
 - **Streamlit Docs**: https://docs.snowflake.com/en/developer-guide/streamlit/about-streamlit
 - **Tasty Bytes**: https://www.snowflake.com/en/developers/guides/tasty-bytes-introduction/
 - **Pricing**: https://www.snowflake.com/legal-files/CreditConsumptionTable.pdf
@@ -319,7 +319,7 @@ Your deployment is successful when:
 
 ## 🆘 Support
 
-**For Snowflake Cortex AISQL questions:**
+**For Snowflake Cortex AI Functions questions:**
 - Check [official documentation](https://docs.snowflake.com/en/user-guide/snowflake-cortex/aisql)
 - Contact your Snowflake account team or Snowflake Support
 

@@ -1,7 +1,7 @@
 # =============================================================================
-# Snowflake AISQL in Action - Comprehensive Demo Application
+# Snowflake AI Functions in Action - Comprehensive Demo Application
 # =============================================================================
-# A Streamlit in Snowflake application showcasing all AISQL functions
+# A Streamlit in Snowflake application showcasing all Cortex AI Functions
 # with Tasty Bytes themed examples
 # =============================================================================
 
@@ -12,7 +12,7 @@ import pypdfium2 as pdfium
 
 # Configure page - MUST be first Streamlit command
 st.set_page_config(
-    page_title="Snowflake Cortex AISQL Playground",
+    page_title="Snowflake Cortex AI Functions Playground",
     page_icon="❄️",
     layout="wide",
     initial_sidebar_state="expanded"
@@ -192,7 +192,7 @@ def escape_sql_string(text):
 
 def show_header():
     """Display the app header"""
-    st.markdown('<div class="main-header"><h1>❄️ Snowflake Cortex AISQL Playground ❄️</h1><p>Powered by Cortex AI - Explore Every AISQL Function</p></div>', unsafe_allow_html=True)
+    st.markdown('<div class="main-header"><h1>❄️ Snowflake Cortex AI Functions Playground ❄️</h1><p>Powered by Cortex AI - Explore Every Function</p></div>', unsafe_allow_html=True)
 
 def execute_query(query):
     """Execute a Snowflake query and return results"""
@@ -287,7 +287,7 @@ st.sidebar.markdown("""
     <h4 style='color: #1E293B; margin-top: 0;'>🍔 About Tasty Bytes</h4>
     <p style='color: #475569; font-size: 14px; margin-bottom: 0;'>
         A fictitious food truck company serving delicious street food across major cities. 
-        This demo uses Tasty Bytes data to showcase AISQL capabilities.
+        This demo uses Tasty Bytes data to showcase AI Functions capabilities.
     </p>
 </div>
 """, unsafe_allow_html=True)
@@ -300,14 +300,14 @@ def page_home():
     show_header()
     
     st.markdown("""
-    ## Welcome to the AISQL Interactive Demo!
+    ## Welcome to the Cortex AI Functions Interactive Demo!
     
-    This application demonstrates **12 core Snowflake Cortex AISQL functions** using real-world scenarios 
+    This application demonstrates **12 core Snowflake Cortex AI Functions** using real-world scenarios 
     from the Tasty Bytes food truck business.
     
-    ### What is AISQL?
+    ### What are Cortex AI Functions?
     
-    Use Cortex AISQL in Snowflake to run unstructured analytics on text and images with industry-leading LLMs 
+    Use Cortex AI Functions in Snowflake to run unstructured analytics on text, images, audio files, and more, with industry-leading LLMs 
     from OpenAI, Anthropic, Meta, Mistral AI, and DeepSeek. 
     
     All models are fully hosted in Snowflake, ensuring **performance**, **scalability**, and **governance** 
@@ -332,7 +332,7 @@ def page_home():
     """)
     
     # Function overview with documentation links
-    st.markdown("### 📚 Available AISQL Functions")
+    st.markdown("### 📚 Available Cortex AI Functions")
     
     st.markdown("""
     **[AI_COMPLETE](https://docs.snowflake.com/en/sql-reference/functions/ai_complete)**  
@@ -380,22 +380,22 @@ def page_home():
     col1, col2, col3, col4 = st.columns(4)
     
     with col1:
-        result, _ = execute_query("SELECT COUNT(*) as cnt FROM AISQL_PLAYGROUND.DEMO.FOOD_TRUCKS")
+        result, _ = execute_query("SELECT COUNT(*) as cnt FROM AI_FUNCTIONS_PLAYGROUND.DEMO.FOOD_TRUCKS")
         if result:
             st.metric("Food Trucks", result[0]['CNT'])
     
     with col2:
-        result, _ = execute_query("SELECT COUNT(*) as cnt FROM AISQL_PLAYGROUND.DEMO.CUSTOMER_REVIEWS")
+        result, _ = execute_query("SELECT COUNT(*) as cnt FROM AI_FUNCTIONS_PLAYGROUND.DEMO.CUSTOMER_REVIEWS")
         if result:
             st.metric("Customer Reviews", result[0]['CNT'])
     
     with col3:
-        result, _ = execute_query("SELECT COUNT(*) as cnt FROM AISQL_PLAYGROUND.DEMO.MENU_ITEMS")
+        result, _ = execute_query("SELECT COUNT(*) as cnt FROM AI_FUNCTIONS_PLAYGROUND.DEMO.MENU_ITEMS")
         if result:
             st.metric("Menu Items", result[0]['CNT'])
     
     with col4:
-        result, _ = execute_query("SELECT COUNT(*) as cnt FROM AISQL_PLAYGROUND.DEMO.SUPPORT_TICKETS")
+        result, _ = execute_query("SELECT COUNT(*) as cnt FROM AI_FUNCTIONS_PLAYGROUND.DEMO.SUPPORT_TICKETS")
         if result:
             st.metric("Support Tickets", result[0]['CNT'])
 
@@ -416,11 +416,11 @@ def page_ai_complete():
     
     {multimodal_badge} &nbsp;&nbsp; 📖 [View Documentation](https://docs.snowflake.com/en/sql-reference/functions/ai_complete)
     
-    **💰 Cost (per 1M tokens):** Varies by model
-    - **Claude-4.5-Sonnet**: 2.80 credits (Latest, Best Quality)
-    - **OpenAI GPT-5**: 1.60 credits (Latest GPT)
-    - **Llama4-Maverick**: 0.25 credits (Cost-Effective)
-    - Claude-3.5-Sonnet: 2.55 credits
+    **💰 Cost (per 1M tokens):** Varies by model - Input / Output
+    - **Claude-4.5-Sonnet**: 1.65 / 8.25 credits (Latest, Best Quality)
+    - **OpenAI GPT-5**: 0.69 / 5.50 credits (Latest GPT)
+    - **Llama4-Maverick**: 0.12 / 0.49 credits (Cost-Effective)
+    - **Claude-3.5-Sonnet**: 1.50 / 7.50 credits
     
     [View full pricing](https://www.snowflake.com/legal-files/CreditConsumptionTable.pdf)
     """, unsafe_allow_html=True)
@@ -493,7 +493,7 @@ def page_ai_complete():
                     '. Category: ' || category || '. Make it appetizing and highlight unique flavors.',
                     {{'temperature': 0.7}}
                 ) as ai_marketing_copy
-            FROM AISQL_PLAYGROUND.DEMO.MENU_ITEMS
+            FROM AI_FUNCTIONS_PLAYGROUND.DEMO.MENU_ITEMS
             LIMIT 10
             """
             result, error = execute_query(query)
@@ -531,7 +531,7 @@ def page_ai_complete():
                         'Analyze this support ticket and respond in JSON (do not generate ```json\n) format with: category (Food Quality/Service/Payment/Location/Other), priority (High/Medium/Low), and suggested_action (one sentence). Ticket: ' || issue_description,
                         {{'temperature': 0.3}}
                     ) as ai_analysis_json
-                FROM AISQL_PLAYGROUND.DEMO.SUPPORT_TICKETS
+                FROM AI_FUNCTIONS_PLAYGROUND.DEMO.SUPPORT_TICKETS
             )
             SELECT 
                 ticket_id,
@@ -669,7 +669,7 @@ def page_ai_translate():
         1
     )
     
-    result, _ = execute_query("SELECT item_name, description_english FROM AISQL_PLAYGROUND.DEMO.MENU_ITEMS")
+    result, _ = execute_query("SELECT item_name, description_english FROM AI_FUNCTIONS_PLAYGROUND.DEMO.MENU_ITEMS")
     if result:
         menu_options = {r['ITEM_NAME']: r['DESCRIPTION_ENGLISH'] for r in result}
         
@@ -726,7 +726,7 @@ def page_ai_translate():
                 food_truck_name,
                 review_text as original,
                 AI_TRANSLATE(review_text, 'en', '{target_code}') as translation
-            FROM AISQL_PLAYGROUND.DEMO.CUSTOMER_REVIEWS
+            FROM AI_FUNCTIONS_PLAYGROUND.DEMO.CUSTOMER_REVIEWS
             WHERE language = 'English'
             """
             result, error = execute_query(query)
@@ -809,7 +809,7 @@ def page_ai_sentiment():
                         rating,
                         SNOWFLAKE.CORTEX.SENTIMENT(review_text) as overall_sentiment,
                         AI_SENTIMENT(review_text, ['Food Quality', 'Service', 'Value', 'Atmosphere']) as category_sentiment_json
-                    FROM AISQL_PLAYGROUND.DEMO.CUSTOMER_REVIEWS
+                    FROM AI_FUNCTIONS_PLAYGROUND.DEMO.CUSTOMER_REVIEWS
                 )
                 SELECT 
                     review_id,
@@ -888,7 +888,7 @@ def page_ai_sentiment():
                 AVG(rating) as avg_rating,
                 COUNT(*) as review_count,
                 AVG(SNOWFLAKE.CORTEX.SENTIMENT(review_text)) as avg_sentiment
-            FROM AISQL_PLAYGROUND.DEMO.CUSTOMER_REVIEWS
+            FROM AI_FUNCTIONS_PLAYGROUND.DEMO.CUSTOMER_REVIEWS
             GROUP BY food_truck_name
             ORDER BY avg_sentiment DESC
             """
@@ -920,7 +920,7 @@ def page_ai_sentiment():
                     WHEN SNOWFLAKE.CORTEX.SENTIMENT(issue_description) < 0 THEN 'Needs Attention'
                     ELSE 'Positive/Neutral'
                 END as priority_level
-            FROM AISQL_PLAYGROUND.DEMO.SUPPORT_TICKETS
+            FROM AI_FUNCTIONS_PLAYGROUND.DEMO.SUPPORT_TICKETS
             ORDER BY sentiment_score ASC
             LIMIT 10
             """
@@ -973,7 +973,7 @@ def page_ai_extract():
                             'customer_complaint': 'What did the customer complain about?'
                          }
                     ) as extracted_details
-                FROM AISQL_PLAYGROUND.DEMO.CUSTOMER_REVIEWS
+                FROM AI_FUNCTIONS_PLAYGROUND.DEMO.CUSTOMER_REVIEWS
             )
             SELECT 
                 review_id,
@@ -1034,7 +1034,7 @@ def page_ai_extract():
                             'food_item_mentioned': 'What food item is mentioned, if any?'
                         }
                     ) as extracted_details
-                FROM AISQL_PLAYGROUND.DEMO.SUPPORT_TICKETS
+                FROM AI_FUNCTIONS_PLAYGROUND.DEMO.SUPPORT_TICKETS
             )
             SELECT 
                 ticket_id,
@@ -1125,7 +1125,7 @@ def page_ai_extract():
     # Check if invoices exist in the stage
     stage_check_query = """
         SELECT COUNT(*) as cnt 
-        FROM DIRECTORY(@AISQL_PLAYGROUND.DEMO.SUPPLIER_DOCUMENTS_STAGE) 
+        FROM DIRECTORY(@AI_FUNCTIONS_PLAYGROUND.DEMO.SUPPLIER_DOCUMENTS_STAGE) 
         WHERE RELATIVE_PATH LIKE '%supplier_invoice%'
     """
     stage_result, _ = execute_query(stage_check_query)
@@ -1145,7 +1145,7 @@ def page_ai_extract():
         # Get list of available invoices
         invoices_query = """
             SELECT RELATIVE_PATH 
-            FROM DIRECTORY(@AISQL_PLAYGROUND.DEMO.SUPPLIER_DOCUMENTS_STAGE) 
+            FROM DIRECTORY(@AI_FUNCTIONS_PLAYGROUND.DEMO.SUPPLIER_DOCUMENTS_STAGE) 
             WHERE RELATIVE_PATH LIKE '%supplier_invoice%'
             ORDER BY RELATIVE_PATH
         """
@@ -1167,9 +1167,9 @@ def page_ai_extract():
                     WITH extracted_json AS (
                         SELECT 
                             '{selected_invoice}' as file_name,
-                            BUILD_SCOPED_FILE_URL(@AISQL_PLAYGROUND.DEMO.SUPPLIER_DOCUMENTS_STAGE, '{selected_invoice}') as file_url,
+                            BUILD_SCOPED_FILE_URL(@AI_FUNCTIONS_PLAYGROUND.DEMO.SUPPLIER_DOCUMENTS_STAGE, '{selected_invoice}') as file_url,
                             AI_EXTRACT(
-                                file => TO_FILE('@AISQL_PLAYGROUND.DEMO.SUPPLIER_DOCUMENTS_STAGE', '{selected_invoice}'),
+                                file => TO_FILE('@AI_FUNCTIONS_PLAYGROUND.DEMO.SUPPLIER_DOCUMENTS_STAGE', '{selected_invoice}'),
                                 responseFormat => {{
                                     'invoice_number': 'The invoice number (e.g., INV-1001)',
                                     'invoice_date': 'The invoice date in YYYY-MM-DD format',
@@ -1231,7 +1231,7 @@ def page_ai_extract():
                                     st.session_state['pdf_url'] = selected_invoice
                                 
                                 if 'pdf_doc' not in st.session_state or st.session_state['pdf_url'] != selected_invoice:
-                                    pdf_stream = session.file.get_stream(f"@AISQL_PLAYGROUND.DEMO.SUPPLIER_DOCUMENTS_STAGE/{selected_invoice}", decompress=False)
+                                    pdf_stream = session.file.get_stream(f"@AI_FUNCTIONS_PLAYGROUND.DEMO.SUPPLIER_DOCUMENTS_STAGE/{selected_invoice}", decompress=False)
                                     pdf = pdfium.PdfDocument(pdf_stream)
                                     st.session_state['pdf_doc'] = pdf
                                     st.session_state['pdf_url'] = selected_invoice
@@ -1241,7 +1241,7 @@ def page_ai_extract():
                                 display_pdf_page()
                                 
                                 # Download button
-                                pdf_stream_download = session.file.get_stream(f"@AISQL_PLAYGROUND.DEMO.SUPPLIER_DOCUMENTS_STAGE/{selected_invoice}", decompress=False)
+                                pdf_stream_download = session.file.get_stream(f"@AI_FUNCTIONS_PLAYGROUND.DEMO.SUPPLIER_DOCUMENTS_STAGE/{selected_invoice}", decompress=False)
                                 pdf_binary_data = pdf_stream_download.read()
                                 st.download_button(
                                     label="📥 Download Invoice PDF",
@@ -1283,9 +1283,9 @@ def page_ai_extract():
                     WITH extracted_json AS (
                         SELECT 
                             RELATIVE_PATH as file_name,
-                            BUILD_SCOPED_FILE_URL(@AISQL_PLAYGROUND.DEMO.SUPPLIER_DOCUMENTS_STAGE, RELATIVE_PATH) as file_url,
+                            BUILD_SCOPED_FILE_URL(@AI_FUNCTIONS_PLAYGROUND.DEMO.SUPPLIER_DOCUMENTS_STAGE, RELATIVE_PATH) as file_url,
                             AI_EXTRACT(
-                                file => TO_FILE('@AISQL_PLAYGROUND.DEMO.SUPPLIER_DOCUMENTS_STAGE', RELATIVE_PATH),
+                                file => TO_FILE('@AI_FUNCTIONS_PLAYGROUND.DEMO.SUPPLIER_DOCUMENTS_STAGE', RELATIVE_PATH),
                                 responseFormat => {
                                     'invoice_number': 'The invoice number (e.g., INV-1001)',
                                     'invoice_date': 'The invoice date in YYYY-MM-DD format',
@@ -1302,7 +1302,7 @@ def page_ai_extract():
                                     'item_count': 'The number of line items in the invoice'
                                 }
                             ) AS extracted_json
-                        FROM DIRECTORY(@AISQL_PLAYGROUND.DEMO.SUPPLIER_DOCUMENTS_STAGE)
+                        FROM DIRECTORY(@AI_FUNCTIONS_PLAYGROUND.DEMO.SUPPLIER_DOCUMENTS_STAGE)
                         WHERE RELATIVE_PATH LIKE '%supplier_invoice%'
                     )
                     SELECT
@@ -1355,13 +1355,13 @@ def page_ai_extract():
             if st.button("💾 Extract & Load into Table", key="load_invoices_table"):
                 with st.spinner("Extracting and loading data into SUPPLIER_INVOICE_DETAILS table..."):
                     # Truncate table first
-                    truncate_query = "TRUNCATE TABLE AISQL_PLAYGROUND.DEMO.SUPPLIER_INVOICE_DETAILS"
+                    truncate_query = "TRUNCATE TABLE AI_FUNCTIONS_PLAYGROUND.DEMO.SUPPLIER_INVOICE_DETAILS"
                     session.sql(truncate_query).collect()
                     st.info("🗑️ Table truncated, now extracting and loading...")
                     
                     # Extract and insert
                     insert_query = """
-                    INSERT INTO AISQL_PLAYGROUND.DEMO.SUPPLIER_INVOICE_DETAILS (
+                    INSERT INTO AI_FUNCTIONS_PLAYGROUND.DEMO.SUPPLIER_INVOICE_DETAILS (
                         file_name,
                         file_url,
                         invoice_number,
@@ -1383,9 +1383,9 @@ def page_ai_extract():
                     WITH extracted_json AS (
                         SELECT 
                             RELATIVE_PATH as file_name,
-                            BUILD_SCOPED_FILE_URL(@AISQL_PLAYGROUND.DEMO.SUPPLIER_DOCUMENTS_STAGE, RELATIVE_PATH) as file_url,
+                            BUILD_SCOPED_FILE_URL(@AI_FUNCTIONS_PLAYGROUND.DEMO.SUPPLIER_DOCUMENTS_STAGE, RELATIVE_PATH) as file_url,
                             AI_EXTRACT(
-                                file => TO_FILE('@AISQL_PLAYGROUND.DEMO.SUPPLIER_DOCUMENTS_STAGE', RELATIVE_PATH),
+                                file => TO_FILE('@AI_FUNCTIONS_PLAYGROUND.DEMO.SUPPLIER_DOCUMENTS_STAGE', RELATIVE_PATH),
                                 responseFormat => {
                                     'invoice_number': 'The invoice number (e.g., INV-1001)',
                                     'invoice_date': 'The invoice date in YYYY-MM-DD format',
@@ -1402,7 +1402,7 @@ def page_ai_extract():
                                     'item_count': 'The number of line items in the invoice'
                                 }
                             ) AS extracted_json
-                        FROM DIRECTORY(@AISQL_PLAYGROUND.DEMO.SUPPLIER_DOCUMENTS_STAGE)
+                        FROM DIRECTORY(@AI_FUNCTIONS_PLAYGROUND.DEMO.SUPPLIER_DOCUMENTS_STAGE)
                         WHERE RELATIVE_PATH LIKE '%supplier_invoice%'
                     )
                     SELECT
@@ -1433,7 +1433,7 @@ def page_ai_extract():
                             st.success("✅ Data loaded successfully into SUPPLIER_INVOICE_DETAILS table!")
                             
                             # Show row count
-                            count_query = "SELECT COUNT(*) as cnt FROM AISQL_PLAYGROUND.DEMO.SUPPLIER_INVOICE_DETAILS"
+                            count_query = "SELECT COUNT(*) as cnt FROM AI_FUNCTIONS_PLAYGROUND.DEMO.SUPPLIER_INVOICE_DETAILS"
                             count_result, _ = execute_query(count_query)
                             if count_result:
                                 st.info(f"📊 Total records loaded: {count_result[0]['CNT']}")
@@ -1449,7 +1449,7 @@ def page_ai_extract():
                                 total_amount,
                                 payment_terms,
                                 item_count
-                            FROM AISQL_PLAYGROUND.DEMO.SUPPLIER_INVOICE_DETAILS
+                            FROM AI_FUNCTIONS_PLAYGROUND.DEMO.SUPPLIER_INVOICE_DETAILS
                             ORDER BY invoice_date DESC
                             """
                             display_result, _ = execute_query(display_query)
@@ -1474,7 +1474,7 @@ def page_ai_extract():
     )
     
     # Check if table has data
-    count_query = "SELECT COUNT(*) as cnt FROM AISQL_PLAYGROUND.DEMO.SUPPLIER_INVOICE_DETAILS"
+    count_query = "SELECT COUNT(*) as cnt FROM AI_FUNCTIONS_PLAYGROUND.DEMO.SUPPLIER_INVOICE_DETAILS"
     count_result, _ = execute_query(count_query)
     table_count = count_result[0]['CNT'] if count_result else 0
     
@@ -1492,7 +1492,7 @@ def page_ai_extract():
             SUM(total_amount) as total_spent,
             AVG(total_amount) as avg_invoice,
             SUM(tax_amount) as total_tax
-        FROM AISQL_PLAYGROUND.DEMO.SUPPLIER_INVOICE_DETAILS
+        FROM AI_FUNCTIONS_PLAYGROUND.DEMO.SUPPLIER_INVOICE_DETAILS
         GROUP BY DATE_TRUNC('MONTH', invoice_date)
         ORDER BY invoice_month DESC
         """
@@ -1516,7 +1516,7 @@ def page_ai_extract():
             payment_terms,
             item_count,
             extraction_date
-        FROM AISQL_PLAYGROUND.DEMO.SUPPLIER_INVOICE_DETAILS
+        FROM AI_FUNCTIONS_PLAYGROUND.DEMO.SUPPLIER_INVOICE_DETAILS
         ORDER BY invoice_date DESC
         """
         result4, _ = execute_query(query4)
@@ -1577,7 +1577,7 @@ def page_ai_classify():
                                 {'label': 'Feature Request', 'description': 'Suggestions for new menu items, services, or improvements'}
                             ]
                         ) as classification_json
-                    FROM AISQL_PLAYGROUND.DEMO.SUPPORT_TICKETS
+                    FROM AI_FUNCTIONS_PLAYGROUND.DEMO.SUPPORT_TICKETS
                 )
                     SELECT 
                         ticket_id,
@@ -1623,7 +1623,7 @@ def page_ai_classify():
                         ],
                         {'output_mode': 'multi'}
                     ) as topics_json
-                FROM AISQL_PLAYGROUND.DEMO.CUSTOMER_REVIEWS
+                FROM AI_FUNCTIONS_PLAYGROUND.DEMO.CUSTOMER_REVIEWS
             )
             SELECT 
                 review_id,
@@ -1670,13 +1670,13 @@ def page_ai_classify():
             query = """
                  WITH pictures AS (
                      SELECT
-                         TO_FILE('@AISQL_PLAYGROUND.DEMO.IMAGE_STAGE/' || RELATIVE_PATH) AS img,
+                         TO_FILE('@AI_FUNCTIONS_PLAYGROUND.DEMO.IMAGE_STAGE/' || RELATIVE_PATH) AS img,
                          RELATIVE_PATH as FILE_NAME
-                     FROM DIRECTORY('@AISQL_PLAYGROUND.DEMO.IMAGE_STAGE')
+                     FROM DIRECTORY('@AI_FUNCTIONS_PLAYGROUND.DEMO.IMAGE_STAGE')
                  )
                  SELECT
                      p.FILE_NAME,
-                     TO_VARCHAR(GET_PRESIGNED_URL(@AISQL_PLAYGROUND.DEMO.IMAGE_STAGE, p.FILE_NAME, 3600)) as image_url,
+                     TO_VARCHAR(GET_PRESIGNED_URL(@AI_FUNCTIONS_PLAYGROUND.DEMO.IMAGE_STAGE, p.FILE_NAME, 3600)) as image_url,
                      AI_CLASSIFY(
                          p.img,
                          [
@@ -1844,7 +1844,7 @@ def page_ai_filter():
                 food_truck_name,
                 rating,
                 review_text
-            FROM AISQL_PLAYGROUND.DEMO.CUSTOMER_REVIEWS
+            FROM AI_FUNCTIONS_PLAYGROUND.DEMO.CUSTOMER_REVIEWS
             WHERE AI_FILTER(CONCAT('{escaped_question}', review_text)) = TRUE
             """
             result, error = execute_query(query)
@@ -1896,7 +1896,7 @@ def page_ai_filter():
                 urgency,
                 status,
                 issue_description
-            FROM AISQL_PLAYGROUND.DEMO.SUPPORT_TICKETS
+            FROM AI_FUNCTIONS_PLAYGROUND.DEMO.SUPPORT_TICKETS
             WHERE AI_FILTER(CONCAT('{escaped_filter}', issue_description)) = TRUE
             """
             result, error = execute_query(query)
@@ -1957,13 +1957,13 @@ def page_ai_filter():
             query = f"""
             WITH pictures AS (
                 SELECT
-                    TO_FILE('@AISQL_PLAYGROUND.DEMO.IMAGE_STAGE/' || RELATIVE_PATH) AS img,
+                    TO_FILE('@AI_FUNCTIONS_PLAYGROUND.DEMO.IMAGE_STAGE/' || RELATIVE_PATH) AS img,
                     RELATIVE_PATH as file_name
-                FROM DIRECTORY('@AISQL_PLAYGROUND.DEMO.IMAGE_STAGE')
+                FROM DIRECTORY('@AI_FUNCTIONS_PLAYGROUND.DEMO.IMAGE_STAGE')
             )
             SELECT
                 file_name,
-                TO_VARCHAR(GET_PRESIGNED_URL(@AISQL_PLAYGROUND.DEMO.IMAGE_STAGE, file_name, 3600)) as image_url
+                TO_VARCHAR(GET_PRESIGNED_URL(@AI_FUNCTIONS_PLAYGROUND.DEMO.IMAGE_STAGE, file_name, 3600)) as image_url
             FROM pictures
             WHERE AI_FILTER('{escaped_question}', img)
             """
@@ -2026,7 +2026,7 @@ def page_ai_similarity():
         1
     )
     
-    result, _ = execute_query("SELECT review_id, customer_name, review_text FROM AISQL_PLAYGROUND.DEMO.CUSTOMER_REVIEWS")
+    result, _ = execute_query("SELECT review_id, customer_name, review_text FROM AI_FUNCTIONS_PLAYGROUND.DEMO.CUSTOMER_REVIEWS")
     if result:
         review_options = {f"{r['CUSTOMER_NAME']}: {r['REVIEW_TEXT'][:50]}...": r['REVIEW_TEXT'] 
                          for r in result}
@@ -2046,7 +2046,7 @@ def page_ai_similarity():
                         review_text
                     ) as similarity_score,
                     review_text
-                FROM AISQL_PLAYGROUND.DEMO.CUSTOMER_REVIEWS
+                FROM AI_FUNCTIONS_PLAYGROUND.DEMO.CUSTOMER_REVIEWS
                 WHERE review_text != '{reference_text}'
                 ORDER BY similarity_score DESC
                 """
@@ -2095,8 +2095,8 @@ def page_ai_similarity():
                     t2.customer_name as customer2,
                     t2.issue_description as issue2,
                     AI_SIMILARITY(t1.issue_description, t2.issue_description) as similarity
-                FROM AISQL_PLAYGROUND.DEMO.SUPPORT_TICKETS t1
-                JOIN AISQL_PLAYGROUND.DEMO.SUPPORT_TICKETS t2 
+                FROM AI_FUNCTIONS_PLAYGROUND.DEMO.SUPPORT_TICKETS t1
+                JOIN AI_FUNCTIONS_PLAYGROUND.DEMO.SUPPORT_TICKETS t2 
                     ON t1.ticket_id < t2.ticket_id
             )
             SELECT 
@@ -2137,7 +2137,7 @@ def page_ai_similarity():
     st.info("📸 **Working with Images:** Compare food images to find visually similar items")
     
     # Get list of available images from stage
-    images_query = "SELECT RELATIVE_PATH FROM DIRECTORY('@AISQL_PLAYGROUND.DEMO.IMAGE_STAGE') ORDER BY RELATIVE_PATH"
+    images_query = "SELECT RELATIVE_PATH FROM DIRECTORY('@AI_FUNCTIONS_PLAYGROUND.DEMO.IMAGE_STAGE') ORDER BY RELATIVE_PATH"
     images_result, _ = execute_query(images_query)
     
     if images_result:
@@ -2151,7 +2151,7 @@ def page_ai_similarity():
             st.write("")  # Spacer
         with col2:
             try:
-                ref_url_query = f"SELECT TO_VARCHAR(GET_PRESIGNED_URL(@AISQL_PLAYGROUND.DEMO.IMAGE_STAGE, '{reference_img}', 3600)) as img_url"
+                ref_url_query = f"SELECT TO_VARCHAR(GET_PRESIGNED_URL(@AI_FUNCTIONS_PLAYGROUND.DEMO.IMAGE_STAGE, '{reference_img}', 3600)) as img_url"
                 ref_result, _ = execute_query(ref_url_query)
                 if ref_result and ref_result[0]['IMG_URL']:
                     st.image(ref_result[0]['IMG_URL'], caption=f"Reference: {reference_img}", use_container_width=True)
@@ -2168,15 +2168,15 @@ def page_ai_similarity():
                 WITH all_images AS (
                     SELECT
                         RELATIVE_PATH as file_name,
-                        TO_FILE('@AISQL_PLAYGROUND.DEMO.IMAGE_STAGE/' || RELATIVE_PATH) AS img
-                    FROM DIRECTORY('@AISQL_PLAYGROUND.DEMO.IMAGE_STAGE')
+                        TO_FILE('@AI_FUNCTIONS_PLAYGROUND.DEMO.IMAGE_STAGE/' || RELATIVE_PATH) AS img
+                    FROM DIRECTORY('@AI_FUNCTIONS_PLAYGROUND.DEMO.IMAGE_STAGE')
                     WHERE RELATIVE_PATH != '{reference_img}'
                 )
                 SELECT 
                     file_name,
-                    TO_VARCHAR(GET_PRESIGNED_URL(@AISQL_PLAYGROUND.DEMO.IMAGE_STAGE, file_name, 3600)) as image_url,
+                    TO_VARCHAR(GET_PRESIGNED_URL(@AI_FUNCTIONS_PLAYGROUND.DEMO.IMAGE_STAGE, file_name, 3600)) as image_url,
                     AI_SIMILARITY(
-                        TO_FILE('@AISQL_PLAYGROUND.DEMO.IMAGE_STAGE/{reference_img}'),
+                        TO_FILE('@AI_FUNCTIONS_PLAYGROUND.DEMO.IMAGE_STAGE/{reference_img}'),
                         img
                     ) as similarity_score
                 FROM all_images
@@ -2264,7 +2264,7 @@ def page_ai_redact():
     [View pricing details](https://www.snowflake.com/legal-files/CreditConsumptionTable.pdf)
     
     **🔍 Detected PII Categories:**  
-    NAME, EMAIL, PHONE_NUMBER, SSN, CREDIT_CARD, ADDRESS, DATE_OF_BIRTH, IP_ADDRESS, and more
+    NAME, EMAIL, PHONE_NUMBER, DATE_OF_BIRTH, GENDER, AGE, ADDRESS, NATIONAL_ID, PASSPORT, TAX_IDENTIFIER, PAYMENT_CARD_DATA, DRIVERS_LICENSE, IP_ADDRESS
     """, unsafe_allow_html=True)
     
     # Example 1: Redact All PII from Support Tickets
@@ -2283,7 +2283,7 @@ def page_ai_redact():
                 food_truck_name,
                 issue_description as original_text,
                 AI_REDACT(issue_description) as redacted_text
-            FROM AISQL_PLAYGROUND.DEMO.SUPPORT_TICKETS_PII
+            FROM AI_FUNCTIONS_PLAYGROUND.DEMO.SUPPORT_TICKETS_PII
             LIMIT 5
             """
             result, error = execute_query(query)
@@ -2318,7 +2318,7 @@ def page_ai_redact():
     # Multi-select for PII categories
     pii_categories = st.multiselect(
         "Select PII categories to redact:",
-        ["NAME", "EMAIL", "PHONE_NUMBER", "SSN", "CREDIT_CARD", "ADDRESS", "DATE_OF_BIRTH", "IP_ADDRESS"],
+        ["NAME", "EMAIL", "PHONE_NUMBER", "DATE_OF_BIRTH", "GENDER", "AGE", "ADDRESS", "NATIONAL_ID", "PASSPORT", "TAX_IDENTIFIER", "PAYMENT_CARD_DATA", "DRIVERS_LICENSE", "IP_ADDRESS"],
         default=["NAME", "EMAIL"],
         key="pii_categories"
     )
@@ -2334,7 +2334,7 @@ def page_ai_redact():
                     food_truck_name,
                     issue_description as original_text,
                     AI_REDACT(issue_description, {pii_categories}) as redacted_text
-                FROM AISQL_PLAYGROUND.DEMO.SUPPORT_TICKETS_PII
+                FROM AI_FUNCTIONS_PLAYGROUND.DEMO.SUPPORT_TICKETS_PII
                 LIMIT 5
                 """
                 result, error = execute_query(query)
@@ -2380,7 +2380,7 @@ def page_ai_redact():
         if not redact_all_categories:
             custom_categories = st.multiselect(
                 "Select categories:",
-                ["NAME", "EMAIL", "PHONE_NUMBER", "SSN"],
+                ["NAME", "EMAIL", "PHONE_NUMBER", "NATIONAL_ID"],
                 default=["EMAIL"],
                 key="custom_categories"
             )
@@ -2427,20 +2427,24 @@ def page_ai_redact():
     ### 📋 Supported PII Categories
     
     AI_REDACT automatically detects and redacts:
-    - **NAME**: Person names
+    - **NAME**: Person names (also identifies FIRST_NAME, MIDDLE_NAME, LAST_NAME)
     - **EMAIL**: Email addresses
     - **PHONE_NUMBER**: Phone numbers in various formats
-    - **SSN**: Social Security Numbers
-    - **CREDIT_CARD**: Credit card numbers
-    - **ADDRESS**: Physical addresses
     - **DATE_OF_BIRTH**: Birth dates
+    - **GENDER**: Gender identifiers (MALE, FEMALE, NONBINARY)
+    - **AGE**: Age values
+    - **ADDRESS**: Physical addresses (includes STREET_ADDRESS, POSTAL_CODE, CITY, etc.)
+    - **NATIONAL_ID**: National ID numbers (US Social Security Numbers)
+    - **PASSPORT**: Passport numbers (US, UK, CA)
+    - **TAX_IDENTIFIER**: Tax identification numbers (ITNs)
+    - **PAYMENT_CARD_DATA**: Payment card information (includes PAYMENT_CARD_NUMBER, EXPIRATION_DATE, CVV)
+    - **DRIVERS_LICENSE**: Driver's license numbers (US, UK, CA)
     - **IP_ADDRESS**: IP addresses
-    - And more...
     
     ### 💡 Pro Tips
     
     - Use category-specific redaction when you need to preserve some types of information
-    - Combine with other AISQL functions for advanced workflows (e.g., sentiment analysis on redacted text)
+    - Combine with other AI Functions functions for advanced workflows (e.g., sentiment analysis on redacted text)
     - Consider using AI_REDACT as part of your ETL pipeline for automatic PII removal
     """)
 
@@ -2496,7 +2500,7 @@ def page_ai_transcribe():
     # Audio player - get scoped URL from stage
     try:
         # Get presigned URL for audio playback
-        url_query = f"SELECT GET_PRESIGNED_URL(@AISQL_PLAYGROUND.DEMO.AUDIO_STAGE, '{selected_audio}', 3600) as audio_url"
+        url_query = f"SELECT GET_PRESIGNED_URL(@AI_FUNCTIONS_PLAYGROUND.DEMO.AUDIO_STAGE, '{selected_audio}', 3600) as audio_url"
         url_result, _ = execute_query(url_query)
         if url_result and url_result[0]['AUDIO_URL']:
             audio_url = url_result[0]['AUDIO_URL']
@@ -2504,7 +2508,7 @@ def page_ai_transcribe():
         else:
             st.caption("🎵 Audio player unavailable - using BUILD_SCOPED_FILE_URL as fallback")
             # Fallback to scoped file URL
-            scoped_query = f"SELECT BUILD_SCOPED_FILE_URL(@AISQL_PLAYGROUND.DEMO.AUDIO_STAGE, '{selected_audio}') as audio_url"
+            scoped_query = f"SELECT BUILD_SCOPED_FILE_URL(@AI_FUNCTIONS_PLAYGROUND.DEMO.AUDIO_STAGE, '{selected_audio}') as audio_url"
             scoped_result, _ = execute_query(scoped_query)
             if scoped_result and scoped_result[0]['AUDIO_URL']:
                 st.audio(scoped_result[0]['AUDIO_URL'], format='audio/wav')
@@ -2517,7 +2521,7 @@ def page_ai_transcribe():
             SELECT 
                 '{selected_audio}' as audio_file,
                 AI_TRANSCRIBE(
-                    TO_FILE('@AISQL_PLAYGROUND.DEMO.AUDIO_STAGE/{selected_audio}')
+                    TO_FILE('@AI_FUNCTIONS_PLAYGROUND.DEMO.AUDIO_STAGE/{selected_audio}')
                 ) as transcription
             """
             result, error = execute_query(query)
@@ -2554,7 +2558,7 @@ def page_ai_transcribe():
                 SELECT 
                     '{selected_audio2}' as audio_file,
                     AI_TRANSCRIBE(
-                        TO_FILE('@AISQL_PLAYGROUND.DEMO.AUDIO_STAGE/{selected_audio2}')
+                        TO_FILE('@AI_FUNCTIONS_PLAYGROUND.DEMO.AUDIO_STAGE/{selected_audio2}')
                     ) as transcript_json
             )
             SELECT 
@@ -2610,7 +2614,7 @@ def page_ai_transcribe():
             WITH transcription AS (
                 SELECT 
                     AI_TRANSCRIBE(
-                        TO_FILE('@AISQL_PLAYGROUND.DEMO.AUDIO_STAGE/{selected_audio3}')
+                        TO_FILE('@AI_FUNCTIONS_PLAYGROUND.DEMO.AUDIO_STAGE/{selected_audio3}')
                     ) as transcript_json
             )
             SELECT 
@@ -2666,7 +2670,7 @@ def page_ai_transcribe():
                 SELECT 
                     '{audio}' as filename,
                     '{audio_files[audio]}' as call_type,
-                    AI_TRANSCRIBE(TO_FILE('@AISQL_PLAYGROUND.DEMO.AUDIO_STAGE/{audio}')) as transcript_json
+                    AI_TRANSCRIBE(TO_FILE('@AI_FUNCTIONS_PLAYGROUND.DEMO.AUDIO_STAGE/{audio}')) as transcript_json
                 """)
             
             union_query = " UNION ALL ".join(union_parts)
@@ -2799,14 +2803,14 @@ def page_ai_parse_document():
     """, unsafe_allow_html=True)
     
     # Get available PDF documents from stage
-    docs_query = "SELECT RELATIVE_PATH FROM DIRECTORY(@AISQL_PLAYGROUND.DEMO.DOCUMENT_STAGE) ORDER BY RELATIVE_PATH"
+    docs_query = "SELECT RELATIVE_PATH FROM DIRECTORY(@AI_FUNCTIONS_PLAYGROUND.DEMO.DOCUMENT_STAGE) ORDER BY RELATIVE_PATH"
     docs_result, docs_error = execute_query(docs_query)
     
     if docs_error or not docs_result:
         st.warning("⚠️ No documents found in DOCUMENT_STAGE. Please upload PDF documents to the stage first.")
         st.info("""
         **To upload documents:**
-        1. Use `PUT file://your_document.pdf @AISQL_PLAYGROUND.DEMO.DOCUMENT_STAGE AUTO_COMPRESS=FALSE;`
+        1. Use `PUT file://your_document.pdf @AI_FUNCTIONS_PLAYGROUND.DEMO.DOCUMENT_STAGE AUTO_COMPRESS=FALSE;`
         2. Or upload via Snowsight UI to the DOCUMENT_STAGE
         """)
         return
@@ -2844,7 +2848,7 @@ def page_ai_parse_document():
     if st.button("Parse All Documents", key="parse_all_docs"):
         with st.spinner(f"Parsing {doc_count} document(s) in {parse_mode} mode..."):
             # First, truncate existing table
-            truncate_query = "TRUNCATE TABLE AISQL_PLAYGROUND.DEMO.PARSE_DOC_RAW_TEXT;"
+            truncate_query = "TRUNCATE TABLE AI_FUNCTIONS_PLAYGROUND.DEMO.PARSE_DOC_RAW_TEXT;"
             execute_query(truncate_query)
             
             total_docs = 0
@@ -2853,15 +2857,15 @@ def page_ai_parse_document():
                 
                 # Parse and store raw text
                 parse_query = f"""
-                INSERT INTO AISQL_PLAYGROUND.DEMO.PARSE_DOC_RAW_TEXT (file_name, file_url, raw_text)
+                INSERT INTO AI_FUNCTIONS_PLAYGROUND.DEMO.PARSE_DOC_RAW_TEXT (file_name, file_url, raw_text)
                 SELECT 
                     '{doc_file}' as file_name,
-                    TO_VARCHAR(GET_PRESIGNED_URL(@AISQL_PLAYGROUND.DEMO.DOCUMENT_STAGE, '{doc_file}', 3600)) as file_url,
+                    TO_VARCHAR(GET_PRESIGNED_URL(@AI_FUNCTIONS_PLAYGROUND.DEMO.DOCUMENT_STAGE, '{doc_file}', 3600)) as file_url,
                     parsed_json:content::STRING as raw_text
                 FROM (
                     SELECT 
                         AI_PARSE_DOCUMENT(
-                            TO_FILE('@AISQL_PLAYGROUND.DEMO.DOCUMENT_STAGE/{doc_file}'),
+                            TO_FILE('@AI_FUNCTIONS_PLAYGROUND.DEMO.DOCUMENT_STAGE/{doc_file}'),
                             {{'mode': '{parse_mode}'}}
                         ) as parsed_json
                 )
@@ -2884,7 +2888,7 @@ def page_ai_parse_document():
                     LEFT(raw_text, 500) as preview,
                     LENGTH(raw_text) as text_length,
                     parsed_date
-                FROM AISQL_PLAYGROUND.DEMO.PARSE_DOC_RAW_TEXT
+                FROM AI_FUNCTIONS_PLAYGROUND.DEMO.PARSE_DOC_RAW_TEXT
                 ORDER BY parsed_date DESC
                 """
                 sample_result, _ = execute_query(sample_query)
@@ -2897,15 +2901,15 @@ def page_ai_parse_document():
                 
                 with st.expander("🔍 View SQL Query"):
                     st.code(f"""
-INSERT INTO AISQL_PLAYGROUND.DEMO.PARSE_DOC_RAW_TEXT (file_name, file_url, raw_text)
+INSERT INTO AI_FUNCTIONS_PLAYGROUND.DEMO.PARSE_DOC_RAW_TEXT (file_name, file_url, raw_text)
 SELECT 
     'document.pdf' as file_name,
-    TO_VARCHAR(GET_PRESIGNED_URL(@AISQL_PLAYGROUND.DEMO.DOCUMENT_STAGE, 'document.pdf', 3600)) as file_url,
+    TO_VARCHAR(GET_PRESIGNED_URL(@AI_FUNCTIONS_PLAYGROUND.DEMO.DOCUMENT_STAGE, 'document.pdf', 3600)) as file_url,
     parsed_json:content::STRING as raw_text
 FROM (
     SELECT 
         AI_PARSE_DOCUMENT(
-            TO_FILE('@AISQL_PLAYGROUND.DEMO.DOCUMENT_STAGE/document.pdf'),
+            TO_FILE('@AI_FUNCTIONS_PLAYGROUND.DEMO.DOCUMENT_STAGE/document.pdf'),
             {{'mode': '{parse_mode}'}}
         ) as parsed_json
 )
@@ -2933,26 +2937,26 @@ FROM (
     if st.button("Chunk Documents", key="chunk_docs"):
         with st.spinner("Chunking documents..."):
             # First check if there are documents to chunk
-            check_query = "SELECT COUNT(*) as doc_count FROM AISQL_PLAYGROUND.DEMO.PARSE_DOC_RAW_TEXT"
+            check_query = "SELECT COUNT(*) as doc_count FROM AI_FUNCTIONS_PLAYGROUND.DEMO.PARSE_DOC_RAW_TEXT"
             check_result, _ = execute_query(check_query)
             
             if check_result and check_result[0]['DOC_COUNT'] == 0:
                 st.warning("⚠️ No documents found in PARSE_DOC_RAW_TEXT table. Please run Example 1 first!")
             else:
                 # Truncate chunked text table
-                truncate_query = "TRUNCATE TABLE AISQL_PLAYGROUND.DEMO.PARSE_DOC_CHUNKED_TEXT;"
+                truncate_query = "TRUNCATE TABLE AI_FUNCTIONS_PLAYGROUND.DEMO.PARSE_DOC_CHUNKED_TEXT;"
                 execute_query(truncate_query)
                 
                 # Chunk all documents from PARSE_DOC_RAW_TEXT
                 chunk_query = f"""
-                INSERT INTO AISQL_PLAYGROUND.DEMO.PARSE_DOC_CHUNKED_TEXT (file_name, file_url, chunk_index, chunk_text, chunk_length)
+                INSERT INTO AI_FUNCTIONS_PLAYGROUND.DEMO.PARSE_DOC_CHUNKED_TEXT (file_name, file_url, chunk_index, chunk_text, chunk_length)
                 SELECT 
                     file_name,
                     file_url,
                     c.INDEX as chunk_index,
                     c.VALUE as chunk_text,
                     LENGTH(c.VALUE) as chunk_length
-                FROM AISQL_PLAYGROUND.DEMO.PARSE_DOC_RAW_TEXT,
+                FROM AI_FUNCTIONS_PLAYGROUND.DEMO.PARSE_DOC_RAW_TEXT,
                     LATERAL FLATTEN(input => SNOWFLAKE.CORTEX.SPLIT_TEXT_RECURSIVE_CHARACTER(
                         raw_text,
                         'markdown',
@@ -2969,7 +2973,7 @@ FROM (
                         file_name,
                         COUNT(*) as chunk_count,
                         AVG(chunk_length) as avg_chunk_size
-                    FROM AISQL_PLAYGROUND.DEMO.PARSE_DOC_CHUNKED_TEXT
+                    FROM AI_FUNCTIONS_PLAYGROUND.DEMO.PARSE_DOC_CHUNKED_TEXT
                     GROUP BY file_name
                     ORDER BY file_name
                     """
@@ -2991,7 +2995,7 @@ FROM (
                             chunk_index,
                             LEFT(chunk_text, 200) || '...' as chunk_preview,
                             chunk_length
-                        FROM AISQL_PLAYGROUND.DEMO.PARSE_DOC_CHUNKED_TEXT
+                        FROM AI_FUNCTIONS_PLAYGROUND.DEMO.PARSE_DOC_CHUNKED_TEXT
                         ORDER BY file_name, chunk_index
                         """
                         sample_result, _ = execute_query(sample_query)
@@ -3010,7 +3014,7 @@ FROM (
                         
                         with st.expander("🔍 View SQL Query"):
                             st.code(f"""
-INSERT INTO AISQL_PLAYGROUND.DEMO.PARSE_DOC_CHUNKED_TEXT 
+INSERT INTO AI_FUNCTIONS_PLAYGROUND.DEMO.PARSE_DOC_CHUNKED_TEXT 
     (file_name, file_url, chunk_index, chunk_text, chunk_length)
 SELECT 
     file_name,
@@ -3018,7 +3022,7 @@ SELECT
     c.INDEX as chunk_index,
     c.VALUE as chunk_text,
     LENGTH(c.VALUE) as chunk_length
-FROM AISQL_PLAYGROUND.DEMO.PARSE_DOC_RAW_TEXT,
+FROM AI_FUNCTIONS_PLAYGROUND.DEMO.PARSE_DOC_RAW_TEXT,
     LATERAL FLATTEN(input => SNOWFLAKE.CORTEX.SPLIT_TEXT_RECURSIVE_CHARACTER(
         raw_text,
         'markdown',
@@ -3051,7 +3055,7 @@ FROM AISQL_PLAYGROUND.DEMO.PARSE_DOC_RAW_TEXT,
     if st.button("Create Search Service", key="create_search_service"):
         with st.spinner("Creating Cortex Search Service..."):
             # First check if there are chunks to index
-            check_query = "SELECT COUNT(*) as chunk_count FROM AISQL_PLAYGROUND.DEMO.PARSE_DOC_CHUNKED_TEXT"
+            check_query = "SELECT COUNT(*) as chunk_count FROM AI_FUNCTIONS_PLAYGROUND.DEMO.PARSE_DOC_CHUNKED_TEXT"
             check_result, _ = execute_query(check_query)
             
             if check_result and check_result[0]['CHUNK_COUNT'] == 0:
@@ -3059,13 +3063,13 @@ FROM AISQL_PLAYGROUND.DEMO.PARSE_DOC_RAW_TEXT,
             else:
                 # Drop existing service if exists
                 drop_query = """
-                DROP CORTEX SEARCH SERVICE IF EXISTS AISQL_PLAYGROUND.DEMO.DOCUMENT_SEARCH_SERVICE
+                DROP CORTEX SEARCH SERVICE IF EXISTS AI_FUNCTIONS_PLAYGROUND.DEMO.DOCUMENT_SEARCH_SERVICE
                 """
                 execute_query(drop_query)
                 
                 # Create the search service
                 create_service_query = """
-                CREATE CORTEX SEARCH SERVICE AISQL_PLAYGROUND.DEMO.DOCUMENT_SEARCH_SERVICE
+                CREATE CORTEX SEARCH SERVICE AI_FUNCTIONS_PLAYGROUND.DEMO.DOCUMENT_SEARCH_SERVICE
                 ON chunk_text
                 ATTRIBUTES file_name, chunk_index
                 WAREHOUSE = CORTEX_SEARCH_WH
@@ -3075,7 +3079,7 @@ FROM AISQL_PLAYGROUND.DEMO.PARSE_DOC_RAW_TEXT,
                         chunk_text,
                         file_name,
                         chunk_index
-                    FROM AISQL_PLAYGROUND.DEMO.PARSE_DOC_CHUNKED_TEXT
+                    FROM AI_FUNCTIONS_PLAYGROUND.DEMO.PARSE_DOC_CHUNKED_TEXT
                 )
                 """
                 result, error = execute_query(create_service_query)
@@ -3084,7 +3088,7 @@ FROM AISQL_PLAYGROUND.DEMO.PARSE_DOC_RAW_TEXT,
                     st.success("**✅ Cortex Search Service created successfully!**")
                     st.markdown("""
                     **Service Details:**
-                    - **Name:** `AISQL_PLAYGROUND.DEMO.DOCUMENT_SEARCH_SERVICE`
+                    - **Name:** `AI_FUNCTIONS_PLAYGROUND.DEMO.DOCUMENT_SEARCH_SERVICE`
                     - **Search Column:** `chunk_text`
                     - **Attributes:** `file_name`, `chunk_index`
                     - **Warehouse:** `CORTEX_SEARCH_WH`
@@ -3099,7 +3103,7 @@ FROM AISQL_PLAYGROUND.DEMO.PARSE_DOC_RAW_TEXT,
                         chunk_index,
                         LEFT(chunk_text, 200) as preview
                     FROM TABLE(
-                        AISQL_PLAYGROUND.DEMO.DOCUMENT_SEARCH_SERVICE!SEARCH(
+                        AI_FUNCTIONS_PLAYGROUND.DEMO.DOCUMENT_SEARCH_SERVICE!SEARCH(
                             'revenue growth',
                             {'limit': 3}
                         )
@@ -3167,7 +3171,7 @@ def page_ai_summarize_agg():
         1
     )
     
-    result, _ = execute_query("SELECT DISTINCT food_truck_name FROM AISQL_PLAYGROUND.DEMO.CUSTOMER_REVIEWS ORDER BY food_truck_name")
+    result, _ = execute_query("SELECT DISTINCT food_truck_name FROM AI_FUNCTIONS_PLAYGROUND.DEMO.CUSTOMER_REVIEWS ORDER BY food_truck_name")
     if result:
         truck_options = [r['FOOD_TRUCK_NAME'] for r in result]
         selected_truck = st.selectbox("Select food truck:", truck_options)
@@ -3180,7 +3184,7 @@ def page_ai_summarize_agg():
                     COUNT(*) as total_reviews,
                     AVG(rating) as avg_rating,
                     AI_SUMMARIZE_AGG(review_text) as review_summary
-                FROM AISQL_PLAYGROUND.DEMO.CUSTOMER_REVIEWS
+                FROM AI_FUNCTIONS_PLAYGROUND.DEMO.CUSTOMER_REVIEWS
                 WHERE food_truck_name = '{selected_truck}'
                 GROUP BY food_truck_name
                 """
@@ -3215,7 +3219,7 @@ def page_ai_summarize_agg():
                 status,
                 COUNT(*) as ticket_count,
                 AI_SUMMARIZE_AGG(issue_description) as issues_summary
-            FROM AISQL_PLAYGROUND.DEMO.SUPPORT_TICKETS
+            FROM AI_FUNCTIONS_PLAYGROUND.DEMO.SUPPORT_TICKETS
             WHERE status = '{ticket_status}'
             GROUP BY status
             """
@@ -3246,7 +3250,7 @@ def page_ai_summarize_agg():
                 COUNT(*) as review_count,
                 AVG(rating) as avg_rating,
                 AI_SUMMARIZE_AGG(review_text) as monthly_summary
-            FROM AISQL_PLAYGROUND.DEMO.CUSTOMER_REVIEWS
+            FROM AI_FUNCTIONS_PLAYGROUND.DEMO.CUSTOMER_REVIEWS
             GROUP BY DATE_TRUNC('MONTH', review_date)
             ORDER BY month DESC
             LIMIT 3
@@ -3294,7 +3298,7 @@ def page_ai_agg():
                     'Identify the 5 most common complaints or issues mentioned in these reviews. 
                     For each issue, provide a brief description and estimate how many reviews mention it.'
                 ) as common_complaints
-            FROM AISQL_PLAYGROUND.DEMO.CUSTOMER_REVIEWS
+            FROM AI_FUNCTIONS_PLAYGROUND.DEMO.CUSTOMER_REVIEWS
             WHERE rating <= 3
             """
             result, error = execute_query(query)
@@ -3322,7 +3326,7 @@ def page_ai_agg():
                     'List the specific menu items that customers mentioned positively. 
                     For each item, explain what customers liked about it.'
                 ) as popular_items
-            FROM AISQL_PLAYGROUND.DEMO.CUSTOMER_REVIEWS
+            FROM AI_FUNCTIONS_PLAYGROUND.DEMO.CUSTOMER_REVIEWS
             WHERE rating >= 4
             GROUP BY food_truck_name
             LIMIT 5
@@ -3361,7 +3365,7 @@ def page_ai_agg():
                     review_text,
                     '{escaped_instruction}'
                 ) as analysis_result
-                FROM AISQL_PLAYGROUND.DEMO.CUSTOMER_REVIEWS
+                FROM AI_FUNCTIONS_PLAYGROUND.DEMO.CUSTOMER_REVIEWS
                 """
             else:
                 query = f"""
@@ -3369,7 +3373,7 @@ def page_ai_agg():
                     issue_description,
                     '{escaped_instruction}'
                 ) as analysis_result
-                FROM AISQL_PLAYGROUND.DEMO.SUPPORT_TICKETS
+                FROM AI_FUNCTIONS_PLAYGROUND.DEMO.SUPPORT_TICKETS
                 """
             
             result, error = execute_query(query)
@@ -3438,13 +3442,13 @@ def main():
     st.markdown("""
     <div style='text-align: center; padding: 30px; background: linear-gradient(135deg, #F8FAFC 0%, #E8EEF2 100%); border-radius: 12px; margin-top: 40px;'>
         <p style='font-size: 18px; font-weight: 600; color: #1E293B; margin-bottom: 8px;'>
-            ❄️ Snowflake Cortex AISQL Playground ❄️
+            ❄️ Snowflake Cortex AI Functions Playground ❄️
         </p>
         <p style='color: #64748b; font-size: 14px; margin-bottom: 0;'>
             Built with Snowflake Cortex AI | Powered by Streamlit in Snowflake
         </p>
         <p style='color: #64748b; font-size: 12px; margin-top: 8px;'>
-            🍔 Tasty Bytes Demo Data | 12 AISQL Functions Showcased
+            🍔 Tasty Bytes Demo Data | 12 Cortex AI Functions Showcased
         </p>
     </div>
     """, unsafe_allow_html=True)

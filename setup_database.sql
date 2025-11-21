@@ -1,23 +1,26 @@
 -- ============================================================================
--- Snowflake AISQL Demo - Database Setup Script
+-- Snowflake Cortex AI Functions Playground - Database Setup Script
 -- ============================================================================
--- This script creates the AISQL_Demo database with all necessary tables,
--- stages, and sample data for the Tasty Bytes themed AISQL demonstration.
+-- This script creates the AI_FUNCTIONS_PLAYGROUND database with all necessary tables,
+-- stages, and sample data for the Tasty Bytes themed demonstration.
 -- ============================================================================
 
+-- Use SYSADMIN role (or change to a custom role of your choosing)
+USE ROLE SYSADMIN;
+
 -- Create warehouse for the demo (X-SMALL Gen2)
-CREATE OR REPLACE WAREHOUSE AISQL_PLAYGROUND_WH
+CREATE OR REPLACE WAREHOUSE AI_FUNCTIONS_PLAYGROUND_WH
     WAREHOUSE_SIZE = 'X-SMALL'
     WAREHOUSE_TYPE = 'STANDARD'
     AUTO_SUSPEND = 300
     AUTO_RESUME = TRUE
     INITIALLY_SUSPENDED = TRUE
-    COMMENT = 'Warehouse for AISQL Demo Streamlit app and query execution';
+    COMMENT = 'Warehouse for Cortex AI Functions Playground Streamlit app and query execution';
 
 -- Create database and schema
-CREATE DATABASE IF NOT EXISTS AISQL_PLAYGROUND;
-USE DATABASE AISQL_PLAYGROUND;
-USE WAREHOUSE AISQL_PLAYGROUND_WH;
+CREATE DATABASE IF NOT EXISTS AI_FUNCTIONS_PLAYGROUND;
+USE DATABASE AI_FUNCTIONS_PLAYGROUND;
+USE WAREHOUSE AI_FUNCTIONS_PLAYGROUND_WH;
 CREATE SCHEMA IF NOT EXISTS DEMO;
 USE SCHEMA DEMO;
 
@@ -317,8 +320,8 @@ ORDER BY order_count DESC;
 -- ============================================================================
 
 -- Grant usage on database and schema
-GRANT USAGE ON DATABASE AISQL_PLAYGROUND TO ROLE SYSADMIN;
-GRANT USAGE ON SCHEMA AISQL_PLAYGROUND.DEMO TO ROLE SYSADMIN;
+GRANT USAGE ON DATABASE AI_FUNCTIONS_PLAYGROUND TO ROLE SYSADMIN;
+GRANT USAGE ON SCHEMA AI_FUNCTIONS_PLAYGROUND.DEMO TO ROLE SYSADMIN;
 
 -- Create warehouse for Cortex Search (if not exists)
 CREATE WAREHOUSE IF NOT EXISTS CORTEX_SEARCH_WH
@@ -327,16 +330,16 @@ CREATE WAREHOUSE IF NOT EXISTS CORTEX_SEARCH_WH
     AUTO_RESUME = TRUE;
 
 -- Grant privileges on all tables
-GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA AISQL_PLAYGROUND.DEMO TO ROLE SYSADMIN;
+GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA AI_FUNCTIONS_PLAYGROUND.DEMO TO ROLE SYSADMIN;
 
 -- Grant privileges on stages
-GRANT READ, WRITE ON STAGE AISQL_PLAYGROUND.DEMO.AUDIO_STAGE TO ROLE SYSADMIN;
-GRANT READ, WRITE ON STAGE AISQL_PLAYGROUND.DEMO.DOCUMENT_STAGE TO ROLE SYSADMIN;
-GRANT READ, WRITE ON STAGE AISQL_PLAYGROUND.DEMO.SUPPLIER_DOCUMENTS_STAGE TO ROLE SYSADMIN;
-GRANT READ, WRITE ON STAGE AISQL_PLAYGROUND.DEMO.IMAGE_STAGE TO ROLE SYSADMIN;
+GRANT READ, WRITE ON STAGE AI_FUNCTIONS_PLAYGROUND.DEMO.AUDIO_STAGE TO ROLE SYSADMIN;
+GRANT READ, WRITE ON STAGE AI_FUNCTIONS_PLAYGROUND.DEMO.DOCUMENT_STAGE TO ROLE SYSADMIN;
+GRANT READ, WRITE ON STAGE AI_FUNCTIONS_PLAYGROUND.DEMO.SUPPLIER_DOCUMENTS_STAGE TO ROLE SYSADMIN;
+GRANT READ, WRITE ON STAGE AI_FUNCTIONS_PLAYGROUND.DEMO.IMAGE_STAGE TO ROLE SYSADMIN;
 
 -- Grant privileges on views
-GRANT SELECT ON ALL VIEWS IN SCHEMA AISQL_PLAYGROUND.DEMO TO ROLE SYSADMIN;
+GRANT SELECT ON ALL VIEWS IN SCHEMA AI_FUNCTIONS_PLAYGROUND.DEMO TO ROLE SYSADMIN;
 
 -- ============================================================================
 -- VERIFICATION QUERIES
@@ -372,7 +375,7 @@ SHOW STAGES;
 -- After running this script, you will need to manually upload sample files:
 -- 
 -- Option 1: Using Snowsight UI (Manual Upload)
--- Navigate to Data > Databases > AISQL_PLAYGROUND > DEMO > Stages
+-- Navigate to Data > Databases > AI_FUNCTIONS_PLAYGROUND > DEMO > Stages
 -- Select the appropriate stage and click "+ Files" to upload files
 -- Documentation: https://docs.snowflake.com/en/user-guide/data-load-local-file-system-stage-ui
 --
